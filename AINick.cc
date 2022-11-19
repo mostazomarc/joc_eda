@@ -23,18 +23,18 @@ struct PLAYER_NAME : public Player {
     return new PLAYER_NAME;
   }
     //Returns Dir to the nearest avialable space
-Dir space_adj (Pos p)
-{
-  Pos act = p;
-  if(pos_ok(act+Down) and (act.i -1 >= 0) and cell(act+Down).owner != me() and cell(act+Down).type == Street) return Down;
-  if(pos_ok(act+Up) and (act.i + 1 <= 59) and cell(act+Up).owner != me() and cell(act+Up).type == Street) return Up;
-  if(pos_ok(act+Left) and (act.j -1 >= 0) and cell(act+Left).owner != me() and cell(act+Left).type == Street) return Left;
-  if(pos_ok(act+Right) and (act.j +1 <= 59) and cell(act+Right).owner != me() and cell(act+Right).type == Street) return Right;
+  Dir space_adj (Pos p)
+  {
+    Pos act = p;
+    if(pos_ok(act+Down) and (act.i -1 >= 0) and cell(act+Down).owner != me() and cell(act+Down).type == Street) return Down;
+    if(pos_ok(act+Up) and (act.i + 1 <= 59) and cell(act+Up).owner != me() and cell(act+Up).type == Street) return Up;
+    if(pos_ok(act+Left) and (act.j -1 >= 0) and cell(act+Left).owner != me() and cell(act+Left).type == Street) return Left;
+    if(pos_ok(act+Right) and (act.j +1 <= 59) and cell(act+Right).owner != me() and cell(act+Right).type == Street) return Right;
 
-  cerr << "no adjacent spaces at pos" << p.i << ',' << p.j << endl;
+    cerr << "no adjacent spaces at pos" << p.i << ',' << p.j << endl;
 
-  return Up;
-}
+    return Up;
+  }
 
 
   //Returns Dir to the nearest avialable food
@@ -94,9 +94,13 @@ Dir bfs_food (Pos p)
     }
     //Si no hem trobat food retornem una dirreció imposible 'DR'
     if (not food) return DR;
+    if (dist[posfood.i][posfood.j] > 6) {
+      cerr << "food massa lluny" << endl;
+      return DR;
+    }
     //Obtenim primera posició del camí fet
     Pos act  = posfood;
-    cerr << "getting food at " << act.i << ',' << act.j << endl;
+    cerr << "getting food at " << act.i << ',' << act.j << "from " << p.i << ',' << p.j << endl;
     while (previs[act.i][act.j] != p)
     {
       act = previs[act.i][act.j];
@@ -139,7 +143,8 @@ Dir bfs_food (Pos p)
       Pos unitpos = unit(alive[id]).pos;
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
       Dir dir = bfs_food(unitpos);
-      if (dir != DR) {
+      if (dir != DR and strength(me()) > 90) {
+        cerr << "som forts " << strength(me()) << endl;
         cerr << "unit " << alive[id] << " will go " << dir << endl;
          move(alive[id],dir);
       }else {
