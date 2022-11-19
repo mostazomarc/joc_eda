@@ -42,7 +42,7 @@ struct PLAYER_NAME : public Player {
 
 
   //Returns Dir to the nearest avialable food
-Dir bfs_food (Pos p)
+  Dir bfs_food (Pos p)
 {
     int i = p.i;
     int j = p.j;
@@ -70,7 +70,7 @@ Dir bfs_food (Pos p)
         if (cell(act).food == true) {
           food = true;//si es menjar i no hi ha ningú return pos
           posfood = act;
-          cerr << "found food at " << act.i << ',' << act.j << endl;
+          cerr << "found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
         }
         else {
           if(pos_ok(act+Down) and (act.i -1 >= 0) and previs[act.i - 1][act.j] == posnull) {
@@ -97,8 +97,11 @@ Dir bfs_food (Pos p)
       }
     }
     //Si no hem trobat food retornem una dirreció imposible 'DR'
-    if (not food) return DR;
-    if (dist[posfood.i][posfood.j] > 4) {
+    if (not food) {
+      cerr << "food not found" << endl;
+      return DR;
+    }
+    if (dist[posfood.i][posfood.j] > 10) {
       cerr << "food massa lluny" << endl;
       return DR;
     }
@@ -152,7 +155,7 @@ Dir bfs_food (Pos p)
         cerr << "unit " << alive[id] << " will go " << dir << endl;
          move(alive[id],dir);
       }else {
-        cerr << "food not found" << endl;
+        cerr << "conquistant..." << endl;
         dir = space_adj(unitpos);
         cerr << "unit " << alive[id] << " conquistara cap a " << dir << endl;
         move(alive[id],dir);
