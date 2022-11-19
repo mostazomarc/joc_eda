@@ -22,6 +22,20 @@ struct PLAYER_NAME : public Player {
   static Player* factory () {
     return new PLAYER_NAME;
   }
+    //Returns Dir to the nearest avialable space
+Dir space_adj (Pos p)
+{
+  Pos act = p;
+  if(pos_ok(act+Down) and (act.i -1 >= 0) and cell(act+Down).owner != me() and cell(act+Down).type == Street) return Down;
+  if(pos_ok(act+Up) and (act.i + 1 <= 59) and cell(act+Up).owner != me() and cell(act+Up).type == Street) return Up;
+  if(pos_ok(act+Left) and (act.j -1 >= 0) and cell(act+Left).owner != me() and cell(act+Left).type == Street) return Left;
+  if(pos_ok(act+Right) and (act.j +1 <= 59) and cell(act+Right).owner != me() and cell(act+Right).type == Street) return Right;
+
+  cerr << "no adjacent spaces at pos" << p.i << ',' << p.j << endl;
+
+  return Up;
+}
+
 
   //Returns Dir to the nearest avialable food
 Dir bfs_food (Pos p)
@@ -46,7 +60,7 @@ Dir bfs_food (Pos p)
     {
       Pos act = Q.front(); //agafem primera posició i la treiem de la cua
       Q.pop();
-
+      //cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
       //si es pot accedir al carrer anirem pel camí si no, no farem res
       if (cell(act.i,act.j).type == Street) {
         if (cell(act.i,act.j).food == true) {
@@ -54,23 +68,23 @@ Dir bfs_food (Pos p)
           posfood = act;
           cerr << "found food at " << act.i << ',' << act.j << endl;
         }
-        else if (dist[act.i][act.j] != -1) {
-          if(pos_ok(act+Down) and previs[act.i - 1][act.j] == posnull) {
+        else {
+          if(pos_ok(act+Down) and (act.i -1 >= 0) and previs[act.i - 1][act.j] == posnull) {
             Q.push(act+Down); //afegir pos a la cua
             dist[act.i - 1][act.j] = dist[act.i][act.j] + 1; //actualitzar distancia
             previs[act.i-1][act.j] = act;
             }
-          if(pos_ok(act+Up) and previs[act.i + 1 ][act.j] == posnull) {
+          if(pos_ok(act+Up) and (act.i + 1 <= 59) and previs[act.i + 1 ][act.j] == posnull) {
             Q.push(act+Up); 
             dist[act.i + 1][act.j] = dist[act.i][act.j] + 1;
             previs[act.i+1][act.j] = act;
             }
-          if(pos_ok(act+Left) and previs[act.i][act.j - 1] == posnull) {
+          if(pos_ok(act+Left) and (act.j -1 >= 0) and previs[act.i][act.j - 1] == posnull) {
             Q.push(act+Left); 
             dist[act.i][act.j - 1] = dist[act.i][act.j] + 1;
             previs[act.i][act.j - 1] =  act;
             }
-          if(pos_ok(act+Right) and previs[act.i][act.j + 1] == posnull) {
+          if(pos_ok(act+Right) and (act.j +1 <= 59) and previs[act.i][act.j + 1] == posnull) {
             Q.push(act+Right); 
             dist[act.i][act.j + 1] = dist[act.i][act.j] + 1;
             previs[act.i][act.j + 1] = act;
@@ -82,10 +96,12 @@ Dir bfs_food (Pos p)
     if (not food) return DR;
     //Obtenim primera posició del camí fet
     Pos act  = posfood;
+    cerr << "getting food at " << act.i << ',' << act.j << endl;
     while (previs[act.i][act.j] != p)
     {
       act = previs[act.i][act.j];
     }
+    cerr << "anire de p:" << p.i << ',' << p.j << " a nou: " << act.i << ' ' << act.j << endl;
 
     if (act.i > p.i) return Up;
     if (act.i < p.i) return Down;
@@ -93,13 +109,14 @@ Dir bfs_food (Pos p)
     if (act.j < p.j) return Left;
 
 
-    return UL;
+    return DR;
 }
 
   /**
    * Types and attributes for your player can be defined here.
    */
   const vector<Dir> dirs = {Up, Down, Left, Right};
+  
 
 
   /**
@@ -119,18 +136,17 @@ Dir bfs_food (Pos p)
 
     for(int id = 0; id < alive.size(); ++id)
     {
-      //move(alive[id],Left);
-      Dir dir = bfs_food(unit(alive[id]).pos);
+      Pos unitpos = unit(alive[id]).pos;
+      cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
+      Dir dir = bfs_food(unitpos);
       if (dir != DR) {
         cerr << "unit " << alive[id] << " will go " << dir << endl;
          move(alive[id],dir);
-      }
-      else {
-        Dir d = dirs[random(0, dirs.size() - 1)];
-        Pos new_pos = unit(id).pos + d;
-        if (pos_ok(new_pos) and cell(new_pos.i, new_pos.j).type != Waste)
-          cerr << id << " will move randomly " << d << endl;
-          move(id, d);
+      }else {
+        cerr << "food not found" << endl;
+        dir = space_adj(unitpos);
+        cerr << "unit " << alive[id] << " conquistara cap a " << dir << endl;
+        move(alive[id],dir);
       }
 
     }
