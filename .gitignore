@@ -3,3 +3,4 @@ Makefile.deps
 Game
 .vscode/
 *.o
+default.res
