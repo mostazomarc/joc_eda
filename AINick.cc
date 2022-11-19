@@ -42,7 +42,7 @@ struct PLAYER_NAME : public Player {
 
 
   //Returns Dir to the nearest avialable food
-  Dir bfs_food (Pos p)
+  Dir bfs_food (int id, Pos p)
 {
     int i = p.i;
     int j = p.j;
@@ -70,15 +70,15 @@ struct PLAYER_NAME : public Player {
         if (cell(act).food == true) {
           food = true;//si es menjar i no hi ha ningú return pos
           posfood = act;
-          cerr << "found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
+          cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
         }
         else {
-          if(pos_ok(act+Down) and (act.i -1 >= 0) and previs[act.i + 1][act.j] == posnull) {
+          if(pos_ok(act+Down) and (act.i +1 <= 59) and previs[act.i + 1][act.j] == posnull) {
             Q.push(act+Down); //afegir pos a la cua
             dist[act.i + 1][act.j] = dist[act.i][act.j] + 1; //actualitzar distancia
             previs[act.i+1][act.j] = act;
             }
-          if(pos_ok(act+Up) and (act.i - 1 <= 59) and previs[act.i - 1 ][act.j] == posnull) {
+          if(pos_ok(act+Up) and (act.i - 1 >= 0) and previs[act.i - 1 ][act.j] == posnull) {
             Q.push(act+Up); 
             dist[act.i - 1][act.j] = dist[act.i][act.j] + 1;
             previs[act.i-1][act.j] = act;
@@ -98,21 +98,21 @@ struct PLAYER_NAME : public Player {
     }
     //Si no hem trobat food retornem una dirreció imposible 'DR'
     if (not food) {
-      cerr << "food not found" << endl;
+      cerr << id << " food not found" << endl;
       return DR;
     }
     if (dist[posfood.i][posfood.j] > 10) {
-      cerr << "food massa lluny" << endl;
+      cerr << id << " food massa lluny" << endl;
       return DR;
     }
     //Obtenim primera posició del camí fet
     Pos act  = posfood;
-    cerr << "getting food at " << act.i << ',' << act.j << "from " << p.i << ',' << p.j << endl;
+    cerr << id << " getting food at " << act.i << ',' << act.j << "from " << p.i << ',' << p.j << endl;
     while (previs[act.i][act.j] != p)
     {
       act = previs[act.i][act.j];
     }
-    cerr << "anire de p:" << p.i << ',' << p.j << " a nou: " << act.i << ' ' << act.j << endl;
+    cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << act.i << ' ' << act.j << endl;
 
     if (act.i > p.i) return Down;
     if (act.i < p.i) return Up;
@@ -149,15 +149,15 @@ struct PLAYER_NAME : public Player {
     {
       Pos unitpos = unit(alive[id]).pos;
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
-      Dir dir = bfs_food(unitpos);
+      Dir dir = bfs_food(id,unitpos);
       if (dir != DR and strength(me()) > 90) {
         cerr << "som forts " << strength(me()) << endl;
-        cerr << "unit " << alive[id] << " will go " << dir << endl;
+        cerr << "unit " << id << " will go " << dir << endl;
          move(alive[id],dir);
       }else {
         cerr << "conquistant..." << endl;
         dir = space_adj(unitpos);
-        cerr << "unit " << alive[id] << " conquistara cap a " << dir << endl;
+        cerr << "unit " << id << " conquistara cap a " << dir << endl;
         move(alive[id],dir);
       }
 
