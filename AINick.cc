@@ -33,7 +33,11 @@ struct PLAYER_NAME : public Player {
 
     cerr << "no adjacent spaces at pos" << p.i << ',' << p.j << endl;
 
-    return Up;
+    if (pos_ok(act+Up) and cell(act+Up).type == Street)return Up;
+    if (pos_ok(act+Down)and cell(act+Down).type == Street)return Down;
+    if (pos_ok(act+Right) and cell(act+Right).type == Street)return Right;
+    if (pos_ok(act+Left) and cell(act+Left).type == Street)return Left;
+    return Right;
   }
 
 
@@ -62,8 +66,8 @@ Dir bfs_food (Pos p)
       Q.pop();
       //cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
       //si es pot accedir al carrer anirem pel camí si no, no farem res
-      if (cell(act.i,act.j).type == Street) {
-        if (cell(act.i,act.j).food == true) {
+      if (cell(act).type == Street) {
+        if (cell(act).food == true) {
           food = true;//si es menjar i no hi ha ningú return pos
           posfood = act;
           cerr << "found food at " << act.i << ',' << act.j << endl;
@@ -94,7 +98,7 @@ Dir bfs_food (Pos p)
     }
     //Si no hem trobat food retornem una dirreció imposible 'DR'
     if (not food) return DR;
-    if (dist[posfood.i][posfood.j] > 6) {
+    if (dist[posfood.i][posfood.j] > 4) {
       cerr << "food massa lluny" << endl;
       return DR;
     }
