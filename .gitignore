@@ -1,0 +1,4 @@
+Viewer/
+Makefile.deps
+Game
+*.o
