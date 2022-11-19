@@ -1,112 +1,128 @@
 #include "Player.hh"
 
-
 /**
  * Write the name of your player and save this file
  * with the same name and .cc extension.
  */
 #define PLAYER_NAME Nick
 
-
-
 /* Estrategia:
       - Si moltes unitats -- Buscar menjar
       - Si poques unitats -- Matar zombis i buscar menjar*/
 
-struct PLAYER_NAME : public Player {
+struct PLAYER_NAME : public Player
+{
 
   /**
    * Factory: returns a new instance of this class.
    * Do not modify this function.
    */
-  static Player* factory () {
+  static Player *factory()
+  {
     return new PLAYER_NAME;
   }
-    //Returns Dir to the nearest avialable space
-  Dir space_adj (Pos p)
+  // Returns Dir to the nearest avialable space
+  Dir space_adj(Pos p)
   {
     Pos act = p;
-    if(pos_ok(act+Down) and (act.i -1 >= 0) and cell(act+Down).owner != me() and cell(act+Down).type == Street) return Down;
-    if(pos_ok(act+Up) and (act.i + 1 <= 59) and cell(act+Up).owner != me() and cell(act+Up).type == Street) return Up;
-    if(pos_ok(act+Left) and (act.j -1 >= 0) and cell(act+Left).owner != me() and cell(act+Left).type == Street) return Left;
-    if(pos_ok(act+Right) and (act.j +1 <= 59) and cell(act+Right).owner != me() and cell(act+Right).type == Street) return Right;
+    if (pos_ok(act + Down) and (act.i - 1 >= 0) and cell(act + Down).owner != me() and cell(act + Down).type == Street)
+      return Down;
+    if (pos_ok(act + Up) and (act.i + 1 <= 59) and cell(act + Up).owner != me() and cell(act + Up).type == Street)
+      return Up;
+    if (pos_ok(act + Left) and (act.j - 1 >= 0) and cell(act + Left).owner != me() and cell(act + Left).type == Street)
+      return Left;
+    if (pos_ok(act + Right) and (act.j + 1 <= 59) and cell(act + Right).owner != me() and cell(act + Right).type == Street)
+      return Right;
 
     cerr << "no adjacent spaces at pos" << p.i << ',' << p.j << endl;
 
-    if (pos_ok(act+Up) and cell(act+Up).type == Street)return Up;
-    if (pos_ok(act+Down)and cell(act+Down).type == Street)return Down;
-    if (pos_ok(act+Right) and cell(act+Right).type == Street)return Right;
-    if (pos_ok(act+Left) and cell(act+Left).type == Street)return Left;
+    if (pos_ok(act + Up) and cell(act + Up).type == Street)
+      return Up;
+    if (pos_ok(act + Down) and cell(act + Down).type == Street)
+      return Down;
+    if (pos_ok(act + Right) and cell(act + Right).type == Street)
+      return Right;
+    if (pos_ok(act + Left) and cell(act + Left).type == Street)
+      return Left;
     return Right;
   }
 
-
-  //Returns Dir to the nearest avialable food
-  Dir bfs_food (int id, Pos p)
-{
+  // Returns Dir to the nearest avialable food
+  Dir bfs_food(int id, Pos p)
+  {
     int i = p.i;
     int j = p.j;
     int n = 60;
     int m = 60;
 
-    Pos posnull(-1,-1);
+    Pos posnull(-1, -1);
 
-    queue<Pos> Q; //Posicions per mirar
-    vector < vector<int> > dist (n, vector<int> (m, -1)); //distancia per cada posició
-    vector < vector<Pos> > previs (n, vector<Pos> (m, posnull));  //previ de cada posició visitada
+    queue<Pos> Q;                                           // Posicions per mirar
+    vector<vector<int>> dist(n, vector<int>(m, -1));        // distancia per cada posició
+    vector<vector<Pos>> previs(n, vector<Pos>(m, posnull)); // previ de cada posició visitada
 
-    Q.push(p); //apuntem primera posició per mirar
-    dist[p.i][p.j] = 0; //distancia primera posició es 0
+    Q.push(p);          // apuntem primera posició per mirar
+    dist[p.i][p.j] = 0; // distancia primera posició es 0
 
     bool food = false;
     Pos posfood = p;
-    while (not Q.empty() and not food) //and dist[act.i][act.j] <= 7) //mentre n'hi hagin posicions per mirar
+    while (not Q.empty() and not food) // and dist[act.i][act.j] <= 7) //mentre n'hi hagin posicions per mirar
     {
-      Pos act = Q.front(); //agafem primera posició i la treiem de la cua
+      Pos act = Q.front(); // agafem primera posició i la treiem de la cua
       Q.pop();
-      //cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
-      //si es pot accedir al carrer anirem pel camí si no, no farem res
-      if (cell(act).type == Street) {
-        if (cell(act).food == true) {
-          food = true;//si es menjar i no hi ha ningú return pos
+      // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
+      // si es pot accedir al carrer anirem pel camí si no, no farem res
+      if (cell(act).type == Street)
+      {
+        if (cell(act).food == true)
+        {
+          food = true; // si es menjar i no hi ha ningú return pos
           posfood = act;
           cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
         }
-        else {
-          if(pos_ok(act+Down) and (act.i +1 <= 59) and previs[act.i + 1][act.j] == posnull) {
-            Q.push(act+Down); //afegir pos a la cua
-            dist[act.i + 1][act.j] = dist[act.i][act.j] + 1; //actualitzar distancia
-            previs[act.i+1][act.j] = act;
-            }
-          if(pos_ok(act+Up) and (act.i - 1 >= 0) and previs[act.i - 1 ][act.j] == posnull) {
-            Q.push(act+Up); 
+        else
+        {
+          if (pos_ok(act + Down) and (act.i + 1 <= 59) and previs[act.i + 1][act.j] == posnull)
+          {
+            Q.push(act + Down);                              // afegir pos a la cua
+            dist[act.i + 1][act.j] = dist[act.i][act.j] + 1; // actualitzar distancia
+            previs[act.i + 1][act.j] = act;
+          }
+          if (pos_ok(act + Up) and (act.i - 1 >= 0) and previs[act.i - 1][act.j] == posnull)
+          {
+            Q.push(act + Up);
             dist[act.i - 1][act.j] = dist[act.i][act.j] + 1;
-            previs[act.i-1][act.j] = act;
-            }
-          if(pos_ok(act+Left) and (act.j - 1 >= 0) and previs[act.i][act.j - 1] == posnull) {
-            Q.push(act+Left); 
+            previs[act.i - 1][act.j] = act;
+          }
+          if (pos_ok(act + Left) and (act.j - 1 >= 0) and previs[act.i][act.j - 1] == posnull)
+          {
+            Q.push(act + Left);
             dist[act.i][act.j - 1] = dist[act.i][act.j] + 1;
-            previs[act.i][act.j - 1] =  act;
-            }
-          if(pos_ok(act+Right) and (act.j +1 <= 59) and previs[act.i][act.j + 1] == posnull) {
-            Q.push(act+Right); 
+            previs[act.i][act.j - 1] = act;
+          }
+          if (pos_ok(act + Right) and (act.j + 1 <= 59) and previs[act.i][act.j + 1] == posnull)
+          {
+            Q.push(act + Right);
             dist[act.i][act.j + 1] = dist[act.i][act.j] + 1;
             previs[act.i][act.j + 1] = act;
-            }
+          }
         }
       }
     }
-    //Si no hem trobat food retornem una dirreció imposible 'DR'
-    if (not food) {
+    // Si no hem trobat food retornem una dirreció imposible 'DR'
+    if (not food)
+    {
       cerr << id << " food not found" << endl;
       return DR;
     }
-    if (dist[posfood.i][posfood.j] > 10) {
+    if (dist[posfood.i][posfood.j] > 10)
+    {
       cerr << id << " food massa lluny" << endl;
       return DR;
     }
-    //Obtenim primera posició del camí fet
-    Pos act  = posfood;
+
+    // Obtenim primera posició del camí fet
+    Pos act = posfood;
     cerr << id << " getting food at " << act.i << ',' << act.j << "from " << p.i << ',' << p.j << endl;
     while (previs[act.i][act.j] != p)
     {
@@ -119,56 +135,52 @@ struct PLAYER_NAME : public Player {
     if (act.j > p.j) return Right;
     if (act.j < p.j) return Left;
 
-
     return DR;
-}
+  }
 
   /**
    * Types and attributes for your player can be defined here.
    */
   const vector<Dir> dirs = {Up, Down, Left, Right};
-  
-
 
   /**
    * Play method, invoked once per each round.
    */
-  virtual void play () {
+  virtual void play()
+  {
 
     vector<int> alive = alive_units(me());
-    int força = strength (me());
+    int força = strength(me());
 
     // Write debugging info about my units
     cerr << "At round " << round() << " player " << me() << " has " << alive.size() << " alive units: ";
-    for (auto id : alive) {
+    for (auto id : alive)
+    {
       cerr << id << " at pos " << unit(id).pos << "; ";
     }
     cerr << endl;
 
-    for(int id = 0; id < alive.size(); ++id)
+    for (int id = 0; id < alive.size(); ++id)
     {
       Pos unitpos = unit(alive[id]).pos;
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
-      Dir dir = bfs_food(id,unitpos);
-      if (dir != DR and strength(me()) > 90) {
+      Dir dir = bfs_food(id, unitpos);
+      if (dir != DR and strength(me()) > 90)
+      {
         cerr << "som forts " << strength(me()) << endl;
         cerr << "unit " << id << " will go " << dir << endl;
-         move(alive[id],dir);
-      }else {
+        move(alive[id], dir);
+      }
+      else
+      {
         cerr << "conquistant..." << endl;
         dir = space_adj(unitpos);
         cerr << "unit " << id << " conquistara cap a " << dir << endl;
-        move(alive[id],dir);
+        move(alive[id], dir);
       }
-
     }
-
-
-    
   }
-
 };
-
 
 /**
  * Do not modify the following line.
