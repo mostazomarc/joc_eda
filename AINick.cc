@@ -73,17 +73,17 @@ struct PLAYER_NAME : public Player {
           cerr << "found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
         }
         else {
-          if(pos_ok(act+Down) and (act.i -1 >= 0) and previs[act.i - 1][act.j] == posnull) {
+          if(pos_ok(act+Down) and (act.i -1 >= 0) and previs[act.i + 1][act.j] == posnull) {
             Q.push(act+Down); //afegir pos a la cua
-            dist[act.i - 1][act.j] = dist[act.i][act.j] + 1; //actualitzar distancia
-            previs[act.i-1][act.j] = act;
-            }
-          if(pos_ok(act+Up) and (act.i + 1 <= 59) and previs[act.i + 1 ][act.j] == posnull) {
-            Q.push(act+Up); 
-            dist[act.i + 1][act.j] = dist[act.i][act.j] + 1;
+            dist[act.i + 1][act.j] = dist[act.i][act.j] + 1; //actualitzar distancia
             previs[act.i+1][act.j] = act;
             }
-          if(pos_ok(act+Left) and (act.j -1 >= 0) and previs[act.i][act.j - 1] == posnull) {
+          if(pos_ok(act+Up) and (act.i - 1 <= 59) and previs[act.i - 1 ][act.j] == posnull) {
+            Q.push(act+Up); 
+            dist[act.i - 1][act.j] = dist[act.i][act.j] + 1;
+            previs[act.i-1][act.j] = act;
+            }
+          if(pos_ok(act+Left) and (act.j - 1 >= 0) and previs[act.i][act.j - 1] == posnull) {
             Q.push(act+Left); 
             dist[act.i][act.j - 1] = dist[act.i][act.j] + 1;
             previs[act.i][act.j - 1] =  act;
@@ -114,8 +114,8 @@ struct PLAYER_NAME : public Player {
     }
     cerr << "anire de p:" << p.i << ',' << p.j << " a nou: " << act.i << ' ' << act.j << endl;
 
-    if (act.i > p.i) return Up;
-    if (act.i < p.i) return Down;
+    if (act.i > p.i) return Down;
+    if (act.i < p.i) return Up;
     if (act.j > p.j) return Right;
     if (act.j < p.j) return Left;
 
