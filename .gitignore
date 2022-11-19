@@ -1,4 +1,5 @@
 Viewer/
 Makefile.deps
 Game
+.vscode/
 *.o
