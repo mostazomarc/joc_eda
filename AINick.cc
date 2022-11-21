@@ -223,6 +223,7 @@ struct PLAYER_NAME : public Player
     return DR;
   }
 
+  //la unitat amb id 'id' es mourà a la direcció contraria de direnem per fugir
   void fugir(int id, Dir direnem)
   {
     Pos pos = unit(alive[id]).pos;
@@ -300,7 +301,7 @@ struct PLAYER_NAME : public Player
     }
   }
 
-
+  //retorna true si a la posició p n'hi ha un zombie
   bool zombie (Pos p)
   {
     int unitid = cell(p).id;
@@ -323,7 +324,7 @@ struct PLAYER_NAME : public Player
     int idleft = cell(pos + Left).id;
 
 
-    // si soc més fort que la unitat adjacent atacar
+    // si soc més fort que la unitat adjacen o aquesta es un zombie atacar
     if (idup != -1)
     {
       Unit unitup = unit(idup);
@@ -487,8 +488,8 @@ struct PLAYER_NAME : public Player
   virtual void play()
   {
 
-    alive = alive_units(me());
-    int força = strength(me());
+    alive = alive_units(me()); //actualitzem el vector de ids de les meves unitats
+    int força = strength(me()); //obtenim la nostra força
 
     // Write debugging info about my units
     cerr << "At round " << round() << " player " << me() << " has " << alive.size() << " alive units: ";
@@ -502,19 +503,19 @@ struct PLAYER_NAME : public Player
     {
       Pos unitpos = unit(alive[id]).pos;
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
-      Dir dir = bfs_food(id, unitpos);
-      lluita(id);
-      if (dir != DR)
+      Dir dir = bfs_food(id, unitpos); //buscar direcció al menjar més proper
+      lluita(id); //lluitar si fa falta
+      if (dir != DR) 
       {
         cerr << "unit " << id << " will go " << dir << endl;
-        move(alive[id], dir);
+        move(alive[id], dir); //si s'ha trobat menjar moure's cap a ell
       }
       else
       {
         cerr << "conquistant..." << endl;
-        dir = space_adj(id, unitpos);
+        dir = space_adj(id, unitpos); //direcció al space conquerible més proper
         cerr << "unit " << id << " conquistara cap a " << dir << endl;
-        move(alive[id], dir);
+        move(alive[id], dir); //ens movem cap allà
       }
     }
   }
