@@ -156,8 +156,8 @@ inline vector<int> State::zombies () const {
 
 inline int State::strength (int pl) const {
   if (pl >= 0 and pl < (int) scr.size()) {
-    if (player2alive_units.size() == 0) return 0;
-    else return overall_strength[pl]/player2alive_units.size();
+    if (player2alive_units[pl].size() == 0) return 0;
+    else return overall_strength[pl]/player2alive_units[pl].size();
   }
   else {
     cerr << "warning: strength requested for player " << pl << endl;
