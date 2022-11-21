@@ -93,12 +93,12 @@ struct PLAYER_NAME : public Player
 
     Pos posnull(-1, -1);
 
-    queue<Pos> Q;                                           // Posicions per mirar
+    queue<Pos> Q;                                           // Posicions per mirar (no s'afegirà una pos a la cua si no es accesible)
     vector<vector<int>> dist(n, vector<int>(m, -1));        // distancia per cada posició
     vector<vector<Pos>> previs(n, vector<Pos>(m, posnull)); // previ de cada posició visitada (s'haurà de borrar)
     stack<Pos> camí;
 
-    Q.push(p);          // apuntem primera posició per mirar
+    Q.push(p);          // apuntem primera posició per mirar 
     dist[p.i][p.j] = 0; // distancia primera posició es 0
 
     bool food = false;
@@ -167,13 +167,13 @@ struct PLAYER_NAME : public Player
     }
     cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << act.i << ' ' << act.j << endl;
 
-    if (act.i > p.i)
+    if (posfood.i > p.i and accesible(act+Down))
       return Down;
-    if (act.i < p.i)
+    if (posfood.i < p.i and accesible(act+Up))
       return Up;
-    if (act.j > p.j)
+    if (posfood.j > p.j and accesible(act+Right))
       return Right;
-    if (act.j < p.j)
+    if (posfood.j < p.j and accesible(act+Left))
       return Left;
 
     return DR;
