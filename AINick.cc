@@ -288,7 +288,7 @@ struct PLAYER_NAME : public Player
     // si soc més fort que la unitat adjacent atacar
     if (idup != -1)
     {
-      Unit unitup = unit(idup);
+      Unit unitup = unit(alive[idup]);
       if (strength(unitup.player) < strength(jo))
         move(alive[id], Up);
     }
