@@ -54,6 +54,36 @@ struct PLAYER_NAME : public Player
     return Right;
   }
 
+  // auxiliars del bfs
+  bool accesible(Pos pos)
+  {
+    if (cell(pos).type == Street)
+      return true;
+    return false;
+  }
+
+  bool menjar(Pos pos)
+  {
+    if (cell(pos).food)
+      return true;
+    return false;
+  }
+
+  bool proximpas(const Pos pos, const Dir sdir, const vector<vector<Pos>> &previs)
+  {
+    Pos posnull(-1, -1);
+    if (sdir == Down)
+      return pos_ok(pos + Down) and (pos.i + 1 <= 59) and previs[pos.i + 1][pos.j] == posnull and accesible(pos + Down);
+    if (sdir == Up)
+      return pos_ok(pos + Up) and (pos.i - 1 >= 0) and previs[pos.i - 1][pos.j] == posnull and accesible(pos + Up);
+    if (sdir == Left)
+      return pos_ok(pos + Left) and (pos.j - 1 >= 0) and previs[pos.i][pos.j - 1] == posnull and accesible(pos + Left);
+    if (sdir == Right)
+      return pos_ok(pos + Right) and (pos.j + 1 <= 59) and previs[pos.i][pos.j + 1] == posnull and accesible(pos + Right);
+    
+    else return false;
+  }
+
   // Returns Dir to the nearest avialable food
   Dir bfs_food(int id, Pos p)
   {
@@ -67,6 +97,7 @@ struct PLAYER_NAME : public Player
     queue<Pos> Q;                                           // Posicions per mirar
     vector<vector<int>> dist(n, vector<int>(m, -1));        // distancia per cada posició
     vector<vector<Pos>> previs(n, vector<Pos>(m, posnull)); // previ de cada posició visitada
+    stack<Pos> camí;
 
     Q.push(p);          // apuntem primera posició per mirar
     dist[p.i][p.j] = 0; // distancia primera posició es 0
@@ -77,45 +108,45 @@ struct PLAYER_NAME : public Player
     {
       Pos act = Q.front(); // agafem primera posició i la treiem de la cua
       Q.pop();
+      camí.push(act); // guardem la posició com camí fet
+
       // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
-      // si es pot accedir al carrer anirem pel camí si no, no farem res
-      if (cell(act).type == Street)
+
+      if (menjar(act))
       {
-        if (cell(act).food == true)
+        food = true; // si es menjar food = true perque hem trobat menjar
+        posfood = act;
+        cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
+      }
+      else
+      {
+        if (proximpas(act, Down, previs))
         {
-          food = true; // si es menjar i no hi ha ningú return pos
-          posfood = act;
-          cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
+          Q.push(act + Down);                              // afegir pos a la cua
+          dist[act.i + 1][act.j] = dist[act.i][act.j] + 1; // actualitzar distancia
+          previs[act.i + 1][act.j] = act;
         }
-        else
+        if (proximpas(act, Up, previs))
         {
-          if (pos_ok(act + Down) and (act.i + 1 <= 59) and previs[act.i + 1][act.j] == posnull)
-          {
-            Q.push(act + Down);                              // afegir pos a la cua
-            dist[act.i + 1][act.j] = dist[act.i][act.j] + 1; // actualitzar distancia
-            previs[act.i + 1][act.j] = act;
-          }
-          if (pos_ok(act + Up) and (act.i - 1 >= 0) and previs[act.i - 1][act.j] == posnull)
-          {
-            Q.push(act + Up);
-            dist[act.i - 1][act.j] = dist[act.i][act.j] + 1;
-            previs[act.i - 1][act.j] = act;
-          }
-          if (pos_ok(act + Left) and (act.j - 1 >= 0) and previs[act.i][act.j - 1] == posnull)
-          {
-            Q.push(act + Left);
-            dist[act.i][act.j - 1] = dist[act.i][act.j] + 1;
-            previs[act.i][act.j - 1] = act;
-          }
-          if (pos_ok(act + Right) and (act.j + 1 <= 59) and previs[act.i][act.j + 1] == posnull)
-          {
-            Q.push(act + Right);
-            dist[act.i][act.j + 1] = dist[act.i][act.j] + 1;
-            previs[act.i][act.j + 1] = act;
-          }
+          Q.push(act + Up);
+          dist[act.i - 1][act.j] = dist[act.i][act.j] + 1;
+          previs[act.i - 1][act.j] = act;
+        }
+        if (proximpas(act, Left, previs))
+        {
+          Q.push(act + Left);
+          dist[act.i][act.j - 1] = dist[act.i][act.j] + 1;
+          previs[act.i][act.j - 1] = act;
+        }
+        if (proximpas(act, Right, previs))
+        {
+          Q.push(act + Right);
+          dist[act.i][act.j + 1] = dist[act.i][act.j] + 1;
+          previs[act.i][act.j + 1] = act;
         }
       }
     }
+
     // Si no hem trobat food retornem una dirreció imposible 'DR'
     if (not food)
     {
@@ -137,14 +168,17 @@ struct PLAYER_NAME : public Player
     }
     cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << act.i << ' ' << act.j << endl;
 
-    if (act.i > p.i) return Down;
-    if (act.i < p.i) return Up;
-    if (act.j > p.j) return Right;
-    if (act.j < p.j) return Left;
+    if (act.i > p.i)
+      return Down;
+    if (act.i < p.i)
+      return Up;
+    if (act.j > p.j)
+      return Right;
+    if (act.j < p.j)
+      return Left;
 
     return DR;
   }
-
 
   /**
    * Play method, invoked once per each round.
