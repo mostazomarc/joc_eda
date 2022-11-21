@@ -90,13 +90,13 @@ struct PLAYER_NAME : public Player
   bool proximpas(const Pos pos, const Dir sdir, const vector<vector<int>> &dist)
   {
     if (sdir == Down)
-      return dist[pos.i + 1][pos.j] == -1 and accesible(pos + Down);
+      return (pos.i + 1 <= 59) and dist[pos.i + 1][pos.j] == -1 and accesible(pos + Down);
     if (sdir == Up)
-      return dist[pos.i - 1][pos.j] == -1 and accesible(pos + Up);
+      return (pos.i - 1 >= 0) and dist[pos.i - 1][pos.j] == -1 and accesible(pos + Up);
     if (sdir == Left)
-      return dist[pos.i][pos.j - 1] == -1 and accesible(pos + Left);
+      return (pos.j - 1 >= 0) and dist[pos.i][pos.j - 1] == -1 and accesible(pos + Left);
     if (sdir == Right)
-      return dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
+      return (pos.j + 1 <= 59) and dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
 
     return false;
   }
@@ -129,26 +129,25 @@ struct PLAYER_NAME : public Player
   }
 
   // Returns path to the food
-  list<Pos> bfs_food(const int id, const Pos p, vector<vector<int>>& dist)
+  vector<Pos> bfs_food(const int id, const Pos p, vector<vector<int>>& dist)
   {
 
-    Pos posnull(-1, -1);
+    vector<Pos> camíbuit (1);
+    camíbuit[0] = p;
 
-    queue<list<Pos>> Q;                                     // Cua de posibles camins
+    queue<vector<Pos>> Q;                                     // Cua de posibles camins
     
 
-    Q.push({p});          // apuntem primera posició com a primer pas del camí
+    Q.push(camíbuit);          // apuntem primera posició com a primer pas del camí
     dist[p.i][p.j] = 0; // distancia primera posició es 0
 
     bool food = false;
-    list<Pos> camifinal = {};
+    vector<Pos> camifinal = {p};
     while (not Q.empty() and not food) //mentre n'hi hagin posicions per mirar i no s'hagi trobat menjar
     {
-      list<Pos> camí = Q.front(); // agafem el primer camí i el treiem de la cua
+      vector<Pos> camí = Q.front(); // agafem el primer camí i el treiem de la cua
       Q.pop();
-      list<Pos>::iterator ultimapos = Q.end();
-      --ultimapos;
-      Pos act = *ultimapos; // agafem la ultima pos de el camí
+      Pos act = camí[camí.size()-1]; // agafem la ultima pos de el camí
 
       // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
 
@@ -162,28 +161,28 @@ struct PLAYER_NAME : public Player
       {
         if (proximpas(act, Down, dist))
         {
-          list<Pos> nou_camí = camí;
+          vector<Pos> nou_camí = camí;
           nou_camí.push_back(act+Down);
           Q.push(nou_camí);                              // afegir nou_camí (camí + nova posicio) a la cua de camins
           dist[act.i + 1][act.j] = dist[act.i][act.j] + 1; // actualitzar distancia
         }
         if (proximpas(act, Up, dist))
         {
-          list<Pos> nou_camí = camí;
+          vector<Pos> nou_camí = camí;
           nou_camí.push_back(act+Up);
           Q.push(nou_camí); 
           dist[act.i - 1][act.j] = dist[act.i][act.j] + 1;
         }
         if (proximpas(act, Left, dist))
         {
-          list<Pos> nou_camí = camí;
+          vector<Pos> nou_camí = camí;
           nou_camí.push_back(act+Left);
           Q.push(nou_camí); 
           dist[act.i][act.j - 1] = dist[act.i][act.j] + 1;
         }
         if (proximpas(act, Right, dist))
         {
-          list<Pos> nou_camí = camí;
+          vector<Pos> nou_camí = camí;
           nou_camí.push_back(act+Right);
           Q.push(nou_camí); 
           dist[act.i][act.j + 1] = dist[act.i][act.j] + 1;
@@ -200,7 +199,7 @@ struct PLAYER_NAME : public Player
     int m = 60;
 
     vector<vector<int>> dist(n, vector<int>(m, -1));
-    list<Pos> camí = bfs_food(id, p, dist);
+    vector<Pos> camí = bfs_food(id, p, dist);
     
 
     // Si no hem trobat food retornem una dirreció imposible 'DR'
@@ -209,7 +208,7 @@ struct PLAYER_NAME : public Player
       cerr << id << " ERROR: food not found" << endl;
       return DR;
     }
-    Pos food = camí.back();
+    Pos food = camí[camí.size()-1];
     if (dist[food.i][food.j] > 12)
     {
       cerr << id << " food massa lluny" << endl;
@@ -217,10 +216,7 @@ struct PLAYER_NAME : public Player
     }
 
     // Obtenim primera posició del camí fet
-    list<Pos>::iterator segonapos = camí.begin();
-    ++segonapos;
-
-    Pos adjacent = *segonapos;
+    Pos adjacent = camí[1];
     cerr << id << " getting food at " << adjacent.i << ',' << adjacent.j << "from " << p.i << ',' << p.j << endl; //WRONG
     
 
