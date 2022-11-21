@@ -528,7 +528,7 @@ struct PLAYER_NAME : public Player
     {
       cerr << id << " at pos " << unit(id).pos << "; ";
     }
-    cerr << endl;
+    cerr << endl; 
 
     for (int id = 0; id < alive.size(); ++id)
     {
