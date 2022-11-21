@@ -21,7 +21,14 @@ struct PLAYER_NAME : public Player
   {
     return new PLAYER_NAME;
   }
-  // Returns Dir to the nearest avialable space
+
+  /**
+   * Types and attributes for your player can be defined here.
+   */
+  const vector<Dir> dirs = {Up, Down, Left, Right};
+  vector<int> alive;
+
+  // Returns Dir to the nearest avialable adjacent space or somewhere to move otherwise
   Dir space_adj(Pos p)
   {
     Pos act = p;
@@ -138,10 +145,6 @@ struct PLAYER_NAME : public Player
     return DR;
   }
 
-  /**
-   * Types and attributes for your player can be defined here.
-   */
-  const vector<Dir> dirs = {Up, Down, Left, Right};
 
   /**
    * Play method, invoked once per each round.
@@ -149,7 +152,7 @@ struct PLAYER_NAME : public Player
   virtual void play()
   {
 
-    vector<int> alive = alive_units(me());
+    alive = alive_units(me());
     int força = strength(me());
 
     // Write debugging info about my units
