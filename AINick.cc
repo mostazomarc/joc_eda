@@ -270,7 +270,45 @@ struct PLAYER_NAME : public Player
       else
         move(alive[id], Left);
     }
+    else if (direnem == DR)
+    {
+      if (accesible(pos + Up) and cell(pos + Up).id == -1)
+        move(alive[id], Down);
+      else if (accesible(pos + Left) and cell(pos + Left).id == -1)
+        move(alive[id], Left);
+    }
+    else if (direnem == RU)
+    {
+      if (accesible(pos + Down) and cell(pos + Down).id == -1)
+        move(alive[id], Down);
+      else if (accesible(pos + Left) and cell(pos + Left).id == -1)
+        move(alive[id], Left);
+    }
+    else if (direnem == UL)
+    {
+      if (accesible(pos + Down) and cell(pos + Down).id == -1)
+        move(alive[id], Down);
+      else if (accesible(pos + Right) and cell(pos + Right).id == -1)
+        move(alive[id], Right);
+    }
+    else if (direnem == LD)
+    {
+      if (accesible(pos + Up) and cell(pos + Up).id == -1)
+        move(alive[id], Up);
+      else if (accesible(pos + Right) and cell(pos + Right).id == -1)
+        move(alive[id], Right);
+    }
   }
+
+
+  bool zombie (Pos p)
+  {
+    int unitid = cell(p).id;
+    Unit u = unit(unitid);
+    if(u.type == Zombie) return true;
+    return false;
+  }
+
 
   // comprova les posicions adjacents per enemics i lluita o fuig segons les posibilitats de guanyar
   void lluita(int id)
@@ -284,31 +322,45 @@ struct PLAYER_NAME : public Player
     int idright = cell(pos + Right).id;
     int idleft = cell(pos + Left).id;
 
+
     // si soc més fort que la unitat adjacent atacar
     if (idup != -1)
     {
       Unit unitup = unit(idup);
-      if (strength(unitup.player) < strength(jo))
+      if (strength(unitup.player) < strength(jo) or zombie(pos+Up))
         move(alive[id], Up);
     }
     else if (iddown != -1)
     {
       Unit unitdown = unit(iddown);
-      if (strength(unitdown.player) < strength(jo))
+      if (strength(unitdown.player) < strength(jo) or zombie(pos+Down))
         move(alive[id], Down);
     }
     else if (idright != -1)
     {
       Unit unitright = unit(idright);
-      if (strength(unitright.player) < strength(jo))
+      if (strength(unitright.player) < strength(jo) or zombie(pos+Right))
         move(id, Right);
     }
     else if (idleft != -1)
     {
       Unit unitleft = unit(idleft);
-      if (strength(unitleft.player) < strength(jo))
+      if (strength(unitleft.player) < strength(jo) or zombie(pos+Left))
         move(alive[id], Left);
     }
+
+    //fugir dels zombies en diagonal
+    int iddr = cell(pos + DR).id;
+    int idru = cell(pos + RU).id;
+    int idul = cell(pos + UL).id;
+    int idld = cell(pos + LD).id;
+    
+    if(iddr != -1 and zombie(pos+DR)) fugir(id,DR);
+    if(idru != -1 and zombie(pos+RU)) fugir(id,RU);
+    if(idul != -1 and zombie(pos+UL)) fugir(id,UL);
+    if(idld != -1 and zombie(pos+LD)) fugir(id,LD);
+
+
 
     // si soc més fluix o igual de fort que la unitat adjacent fujir
     else if (idup != -1)
@@ -336,6 +388,7 @@ struct PLAYER_NAME : public Player
         fugir(id, Left);
     }
   }
+
 
   // Returns Dir to the nearest avialable food
   Dir bfs_space(int id, Pos p)
