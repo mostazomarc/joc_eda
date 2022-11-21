@@ -287,25 +287,25 @@ struct PLAYER_NAME : public Player
     // si soc més fort que la unitat adjacent atacar
     if (idup != -1)
     {
-      Unit unitup = unit(alive[idup]);
+      Unit unitup = unit(idup);
       if (strength(unitup.player) < strength(jo))
         move(alive[id], Up);
     }
     else if (iddown != -1)
     {
-      Unit unitdown = unit(alive[iddown]);
+      Unit unitdown = unit(iddown);
       if (strength(unitdown.player) < strength(jo))
         move(alive[id], Down);
     }
     else if (idright != -1)
     {
-      Unit unitright = unit(alive[idright]);
+      Unit unitright = unit(idright);
       if (strength(unitright.player) < strength(jo))
         move(id, Right);
     }
     else if (idleft != -1)
     {
-      Unit unitleft = unit(alive[idleft]);
+      Unit unitleft = unit(idleft);
       if (strength(unitleft.player) < strength(jo))
         move(alive[id], Left);
     }
@@ -313,25 +313,25 @@ struct PLAYER_NAME : public Player
     // si soc més fluix o igual de fort que la unitat adjacent fujir
     else if (idup != -1)
     {
-      Unit unitup = unit(alive[idup]);
+      Unit unitup = unit(idup);
       if (strength(unitup.player) >= strength(jo))
         fugir(id, Up);
     }
     else if (iddown != -1)
     {
-      Unit unitdown = unit(alive[iddown]);
+      Unit unitdown = unit(iddown);
       if (strength(unitdown.player) >= strength(jo))
         fugir(id, Down);
     }
     else if (idright != -1)
     {
-      Unit unitright = unit(alive[idright]);
+      Unit unitright = unit(idright);
       if (strength(unitright.player) >= strength(jo))
         fugir(id, Right);
     }
     else if (idleft != -1)
     {
-      Unit unitleft = unit(alive[idleft]);
+      Unit unitleft = unit(idleft);
       if (strength(unitleft.player) >= strength(jo))
         fugir(id, Left);
     }
