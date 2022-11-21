@@ -105,23 +105,19 @@ struct PLAYER_NAME : public Player
   {
     if (sdir == Down)
       if (cell(pos+Down).id == -1) {
-        Unit u = unit(alive[id]);
-        if (u.player != me()) return (pos.i + 1 <= 59) and dist[pos.i + 1][pos.j] == -1 and accesible(pos + Down);
+       return (pos.i + 1 <= 59) and dist[pos.i + 1][pos.j] == -1 and accesible(pos + Down);
       }
     if (sdir == Up)
       if (cell(pos+Up).id == -1) {
-        Unit u = unit(alive[id]);
-        if (u.player != me()) return (pos.i - 1 >= 0) and dist[pos.i - 1][pos.j] == -1 and accesible(pos + Up);
+       return (pos.i - 1 >= 0) and dist[pos.i - 1][pos.j] == -1 and accesible(pos + Up);
       }
     if (sdir == Left)
       if (cell(pos+Left).id == -1) {
-        Unit u = unit(alive[id]);
-        if (u.player != me()) return (pos.j - 1 >= 0) and dist[pos.i][pos.j - 1] == -1 and accesible(pos + Left);
+        return (pos.j - 1 >= 0) and dist[pos.i][pos.j - 1] == -1 and accesible(pos + Left);
       }
     if (sdir == Right)
       if (cell(pos+Right).id == -1) {
-        Unit u = unit(alive[id]);
-        if (u.player != me()) return (pos.j + 1 <= 59) and dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
+         return (pos.j + 1 <= 59) and dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
       }
 
     return false;
@@ -288,7 +284,7 @@ struct PLAYER_NAME : public Player
     // si soc més fort que la unitat adjacent atacar
     if (idup != -1)
     {
-      Unit unitup = unit(idup);
+      Unit unitup = unit(alive[idup]);
       if (strength(unitup.player) < strength(jo))
         move(alive[id], Up);
     }
