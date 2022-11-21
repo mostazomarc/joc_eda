@@ -68,7 +68,7 @@ struct PLAYER_NAME : public Player
     cerr << "no adjacent spaces at pos" << p.i << ',' << p.j << endl;
 
     return bfs_space(id, act);
-    
+
     /*
     if (pos_ok(act + Up) and cell(act + Up).type == Street)
       return Up;
@@ -198,31 +198,47 @@ struct PLAYER_NAME : public Player
     Pos pos = unit(alive[id]).pos;
     if (direnem == Up)
     {
-      if (accesible(pos + Down) and cell(pos + Down).id == -1)  move(alive[id], Down);
-      else if (accesible(pos + Left) and cell(pos + Left).id == -1)  move(alive[id], Left);
-      else if (accesible(pos + Right) and cell(pos + Right).id == -1) move(alive[id], Right);
-      else move(alive[id], Up);
+      if (accesible(pos + Down) and cell(pos + Down).id == -1)
+        move(alive[id], Down);
+      else if (accesible(pos + Left) and cell(pos + Left).id == -1)
+        move(alive[id], Left);
+      else if (accesible(pos + Right) and cell(pos + Right).id == -1)
+        move(alive[id], Right);
+      else
+        move(alive[id], Up);
     }
     else if (direnem == Down)
     {
-      if (accesible(pos + Up) and cell(pos + Up).id == -1) move(alive[id], Up);
-      else if (accesible(pos + Left) and cell(pos + Left).id == -1)  move(alive[id], Left);
-      else if (accesible(pos + Right) and cell(pos + Right).id == -1) move(alive[id], Right);
-      else move(alive[id], Down);
+      if (accesible(pos + Up) and cell(pos + Up).id == -1)
+        move(alive[id], Up);
+      else if (accesible(pos + Left) and cell(pos + Left).id == -1)
+        move(alive[id], Left);
+      else if (accesible(pos + Right) and cell(pos + Right).id == -1)
+        move(alive[id], Right);
+      else
+        move(alive[id], Down);
     }
     else if (direnem == Right)
     {
-      if (accesible(pos + Left) and cell(pos + Left).id == -1) move(alive[id], Left);
-      else if (accesible(pos + Up) and cell(pos + Up).id == -1) move(alive[id], Up);
-      else if (accesible(pos + Down) and cell(pos + Down).id == -1) move(alive[id], Down);
-      else move(alive[id], Right);
+      if (accesible(pos + Left) and cell(pos + Left).id == -1)
+        move(alive[id], Left);
+      else if (accesible(pos + Up) and cell(pos + Up).id == -1)
+        move(alive[id], Up);
+      else if (accesible(pos + Down) and cell(pos + Down).id == -1)
+        move(alive[id], Down);
+      else
+        move(alive[id], Right);
     }
     else if (direnem == Left)
     {
-      if (accesible(pos + Right) and cell(pos + Right).id == -1) move(alive[id], Right);
-      else if (accesible(pos + Up) and cell(pos + Up).id == -1) move(alive[id], Up);
-      else if (accesible(pos + Down) and cell(pos + Down).id == -1) move(alive[id], Down);
-      else move(alive[id], Left);
+      if (accesible(pos + Right) and cell(pos + Right).id == -1)
+        move(alive[id], Right);
+      else if (accesible(pos + Up) and cell(pos + Up).id == -1)
+        move(alive[id], Up);
+      else if (accesible(pos + Down) and cell(pos + Down).id == -1)
+        move(alive[id], Down);
+      else
+        move(alive[id], Left);
     }
   }
 
@@ -242,44 +258,52 @@ struct PLAYER_NAME : public Player
     if (idup != -1)
     {
       Unit unitup = unit(idup);
-      if (strength(unitup.player) < strength(jo)) move(alive[id], Up);
+      if (strength(unitup.player) < strength(jo))
+        move(alive[id], Up);
     }
     else if (iddown != -1)
     {
       Unit unitdown = unit(iddown);
-      if (strength(unitdown.player) < strength(jo)) move(alive[id], Down);
+      if (strength(unitdown.player) < strength(jo))
+        move(alive[id], Down);
     }
     else if (idright != -1)
     {
       Unit unitright = unit(idright);
-      if (strength(unitright.player) < strength(jo)) move(id, Right);
+      if (strength(unitright.player) < strength(jo))
+        move(id, Right);
     }
     else if (idleft != -1)
     {
       Unit unitleft = unit(idleft);
-      if (strength(unitleft.player) < strength(jo)) move(alive[id], Left);
+      if (strength(unitleft.player) < strength(jo))
+        move(alive[id], Left);
     }
 
     // si soc més fluix o igual de fort que la unitat adjacent fujir
     else if (idup != -1)
     {
       Unit unitup = unit(idup);
-      if (strength(unitup.player) >= strength(jo)) fugir(id, Up);
+      if (strength(unitup.player) >= strength(jo))
+        fugir(id, Up);
     }
     else if (iddown != -1)
     {
       Unit unitdown = unit(iddown);
-      if (strength(unitdown.player) >= strength(jo)) fugir(id, Down);
+      if (strength(unitdown.player) >= strength(jo))
+        fugir(id, Down);
     }
     else if (idright != -1)
     {
       Unit unitright = unit(idright);
-      if (strength(unitright.player) >= strength(jo)) fugir(id, Right);
+      if (strength(unitright.player) >= strength(jo))
+        fugir(id, Right);
     }
     else if (idleft != -1)
     {
       Unit unitleft = unit(idleft);
-      if (strength(unitleft.player) >= strength(jo)) fugir(id, Left);
+      if (strength(unitleft.player) >= strength(jo))
+        fugir(id, Left);
     }
   }
 
@@ -374,7 +398,6 @@ struct PLAYER_NAME : public Player
     return DR;
   }
 
-
   /**
    * Play method, invoked once per each round.
    */
@@ -406,7 +429,7 @@ struct PLAYER_NAME : public Player
       else
       {
         cerr << "conquistant..." << endl;
-        dir = space_adj(id,unitpos);
+        dir = space_adj(id, unitpos);
         cerr << "unit " << id << " conquistara cap a " << dir << endl;
         move(alive[id], dir);
       }
