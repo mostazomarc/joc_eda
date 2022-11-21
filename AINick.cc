@@ -56,7 +56,7 @@ struct PLAYER_NAME : public Player
   Dir space_adj(int id, Pos p)
   {
     Pos act = p;
-    //mirem si ens podem moure cap a una posició adjacent per conquerir
+    // mirem si ens podem moure cap a una posició adjacent per conquerir
     if (conq(act + Down))
       return Down;
     if (conq(act + Up))
@@ -68,11 +68,12 @@ struct PLAYER_NAME : public Player
 
     cerr << "no adjacent spaces at pos" << p.i << ',' << p.j << endl;
 
-    //buscar direcció cap al space més proxim
+    // buscar direcció cap al space més proxim
     Dir dir = bfs_space(id, act);
-    if (dir != DR) return dir;
+    if (dir != DR)
+      return dir;
 
-    //si no hem trobat cap space moures cap a on sigui
+    // si no hem trobat cap space moures cap a on sigui
     if (pos_ok(act + Up) and cell(act + Up).type == Street)
       return Up;
     if (pos_ok(act + Down) and cell(act + Down).type == Street)
@@ -82,7 +83,6 @@ struct PLAYER_NAME : public Player
     if (pos_ok(act + Left) and cell(act + Left).type == Street)
       return Left;
     return Right;
-    
   }
 
   // retorna si el proxim pas del bfs es una posició accesible i no visitada
@@ -100,29 +100,32 @@ struct PLAYER_NAME : public Player
     return false;
   }
 
-    // retorna si el proxim pas del bfs es una posició accesible, no visitada i que no hi ha cap unitat en aquesta
+  // retorna si el proxim pas del bfs es una posició accesible, no visitada i que no hi ha cap unitat en aquesta
   bool proximpas_space(const int id, const Pos pos, const Dir sdir, const vector<vector<int>> &dist)
   {
     if (sdir == Down)
-      if (cell(pos+Down).id == -1) {
-       return (pos.i + 1 <= 59) and dist[pos.i + 1][pos.j] == -1 and accesible(pos + Down);
+      if (cell(pos + Down).id == -1)
+      {
+        return (pos.i + 1 <= 59) and dist[pos.i + 1][pos.j] == -1 and accesible(pos + Down);
       }
     if (sdir == Up)
-      if (cell(pos+Up).id == -1) {
-       return (pos.i - 1 >= 0) and dist[pos.i - 1][pos.j] == -1 and accesible(pos + Up);
+      if (cell(pos + Up).id == -1)
+      {
+        return (pos.i - 1 >= 0) and dist[pos.i - 1][pos.j] == -1 and accesible(pos + Up);
       }
     if (sdir == Left)
-      if (cell(pos+Left).id == -1) {
+      if (cell(pos + Left).id == -1)
+      {
         return (pos.j - 1 >= 0) and dist[pos.i][pos.j - 1] == -1 and accesible(pos + Left);
       }
     if (sdir == Right)
-      if (cell(pos+Right).id == -1) {
-         return (pos.j + 1 <= 59) and dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
+      if (cell(pos + Right).id == -1)
+      {
+        return (pos.j + 1 <= 59) and dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
       }
 
     return false;
   }
-
 
   // Returns Dir to the nearest avialable food
   Dir bfs_food(int id, Pos p)
@@ -354,7 +357,7 @@ struct PLAYER_NAME : public Player
 
     bool space = false;
     Pos posspace = p;
-    while (not Q.empty() and not space) //mentre n'hi hagin posicions per mirar
+    while (not Q.empty() and not space) // mentre n'hi hagin posicions per mirar
     {
       Pos act = Q.front(); // agafem primera posició i la treiem de la cua
       Q.pop();
@@ -370,25 +373,25 @@ struct PLAYER_NAME : public Player
       }
       else
       {
-        if (proximpas_space(id,act, Down, dist))
+        if (proximpas_space(id, act, Down, dist))
         {
           Q.push(act + Down);                              // afegir pos a la cua
           dist[act.i + 1][act.j] = dist[act.i][act.j] + 1; // actualitzar distancia
           previs[act.i + 1][act.j] = act;
         }
-        if (proximpas_space(id,act, Up, dist))
+        if (proximpas_space(id, act, Up, dist))
         {
           Q.push(act + Up);
           dist[act.i - 1][act.j] = dist[act.i][act.j] + 1;
           previs[act.i - 1][act.j] = act;
         }
-        if (proximpas_space(id,act, Left, dist))
+        if (proximpas_space(id, act, Left, dist))
         {
           Q.push(act + Left);
           dist[act.i][act.j - 1] = dist[act.i][act.j] + 1;
           previs[act.i][act.j - 1] = act;
         }
-        if (proximpas_space(id,act, Right, dist))
+        if (proximpas_space(id, act, Right, dist))
         {
           Q.push(act + Right);
           dist[act.i][act.j + 1] = dist[act.i][act.j] + 1;
