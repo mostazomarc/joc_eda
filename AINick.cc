@@ -318,34 +318,42 @@ struct PLAYER_NAME : public Player
 
     // get id of adjacent players
     int idup = cell(pos + Up).id;
+    int idup2 = cell(pos + Up + Up).id;
     int iddown = cell(pos + Down).id;
+    int iddown2 = cell(pos + Down +Down).id;
     int idright = cell(pos + Right).id;
+    int idright2 = cell(pos + Right + Right).id;
     int idleft = cell(pos + Left).id;
+    int idleft2 = cell(pos + Left + Right).id;
 
 
     // si soc més fort que la unitat adjacent atacar
-    if (idup != -1)
+    if (idup != -1 or idup2 != -1)
     {
       Unit unitup = unit(idup);
-      if (strength(unitup.player) < strength(jo) or zombie(pos+Up))
+      Unit unitup2 = unit(idup2);
+      if (strength(unitup.player) < strength(jo) or strength(unitup2.player) < strength(jo) or zombie(pos+Up) or zombie(pos+Up + Up))
         move(alive[id], Up);
     }
     else if (iddown != -1)
     {
       Unit unitdown = unit(iddown);
-      if (strength(unitdown.player) < strength(jo) or zombie(pos+Down))
+      Unit unitdown2 = unit(iddown);
+      if (strength(unitdown.player) < strength(jo) or strength(unitdown2.player) < strength(jo) or zombie(pos+Down) or zombie(pos+Down+Down))
         move(alive[id], Down);
     }
     else if (idright != -1)
     {
       Unit unitright = unit(idright);
-      if (strength(unitright.player) < strength(jo) or zombie(pos+Right))
+      Unit unitright2 = unit(idright);
+      if (strength(unitright.player) < strength(jo) or strength(unitright2.player) < strength(jo) or zombie(pos+Right) or zombie(pos+Right+Right))
         move(id, Right);
     }
     else if (idleft != -1)
     {
       Unit unitleft = unit(idleft);
-      if (strength(unitleft.player) < strength(jo) or zombie(pos+Left))
+      Unit unitleft2 = unit(idleft);
+      if (strength(unitleft.player) < strength(jo) or strength(unitleft2.player) < strength(jo) or zombie(pos+Left) or zombie(pos+Left+Left))
         move(alive[id], Left);
     }
 
