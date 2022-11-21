@@ -2,5 +2,6 @@ Viewer/
 Makefile.deps
 Game
 .vscode/
+.DS_Store
 *.o
 default.res
