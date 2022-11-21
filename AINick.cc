@@ -195,15 +195,27 @@ struct PLAYER_NAME : public Player
     int jo = me();
 
     //get id of adjacent players
-    int jup = cell(pos+Up).id;
-    int jdown = cell(pos+Down).id;
-    int jright = cell(pos+Right).id;
-    int jleft = cell(pos+Left).id;
+    int idup = cell(pos+Up).id;
+    int iddown = cell(pos+Down).id;
+    int idright = cell(pos+Right).id;
+    int idleft = cell(pos+Left).id;
 
-    if (jup != -1 and strength(jup) < strength(jo)) move (id,Up);
-    if (jdown != -1 and strength(jdown) < strength(jo)) move (id,Down);
-    if (jright != -1 and strength(jright) < strength(jo)) move (id,Right);
-    if (jleft != -1 and strength(jleft) < strength(jo)) move (id,Left);
+    if (idup != -1) {
+      Unit unitup = unit(idup);
+      if (strength(unitup.player) < strength(jo)) move (id,Up);
+    }
+    if (iddown != -1) {
+      Unit unitdown = unit(iddown);
+      if (strength(unitdown.player) < strength(jo)) move (id,Down);
+    }
+    if (idright != -1) {
+      Unit unitright = unit(idright);
+      if (strength(unitright.player) < strength(jo)) move (id,Right);
+    }
+    if (idleft != -1) {
+      Unit unitleft = unit(idleft);
+      if (strength(unitleft.player) < strength(jo)) move (id,Left);
+    }
   }
 
 
