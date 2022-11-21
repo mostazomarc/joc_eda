@@ -28,17 +28,41 @@ struct PLAYER_NAME : public Player
   const vector<Dir> dirs = {Up, Down, Left, Right};
   vector<int> alive;
 
+   // auxiliars
+
+  //retorna ture si la posició es accesible (no te Waste)
+  bool accesible(Pos pos)
+  {
+    if (pos_ok(pos) and cell(pos).type == Street)
+      return true;
+    return false;
+  }
+
+  //retorna true si a la posició n'hi ha menjar
+  bool menjar(Pos pos)
+  {
+    if (cell(pos).food)
+      return true;
+    return false;
+  }
+
+  //retorna si la posició es conquerible
+  bool conq(Pos p)
+  {
+    return pos_ok(p) and cell(p).owner != me() and accesible(p);
+  }
+
   // Returns Dir to the nearest avialable adjacent space or somewhere to move otherwise
   Dir space_adj(Pos p)
   {
     Pos act = p;
-    if (pos_ok(act + Down) and (act.i - 1 >= 0) and cell(act + Down).owner != me() and cell(act + Down).type == Street)
+    if (conq(act+Down))
       return Down;
-    if (pos_ok(act + Up) and (act.i + 1 <= 59) and cell(act + Up).owner != me() and cell(act + Up).type == Street)
+    if (conq(act+Up))
       return Up;
-    if (pos_ok(act + Left) and (act.j - 1 >= 0) and cell(act + Left).owner != me() and cell(act + Left).type == Street)
+    if (conq(act+Left))
       return Left;
-    if (pos_ok(act + Right) and (act.j + 1 <= 59) and cell(act + Right).owner != me() and cell(act + Right).type == Street)
+    if (conq(act+Right))
       return Right;
 
     cerr << "no adjacent spaces at pos" << p.i << ',' << p.j << endl;
@@ -54,31 +78,17 @@ struct PLAYER_NAME : public Player
     return Right;
   }
 
-  // auxiliars del bfs
-  bool accesible(Pos pos)
-  {
-    if (cell(pos).type == Street)
-      return true;
-    return false;
-  }
-
-  bool menjar(Pos pos)
-  {
-    if (cell(pos).food)
-      return true;
-    return false;
-  }
-
+  //retorna si el proxim pas del bfs es una posició accesible i no visitada
   bool proximpas(const Pos pos, const Dir sdir, const vector<vector<int>> &dist)
   {
     if (sdir == Down)
-      return pos_ok(pos + Down) and (pos.i + 1 <= 59) and dist[pos.i + 1][pos.j] == -1 and accesible(pos + Down);
+      return (pos.i + 1 <= 59) and dist[pos.i + 1][pos.j] == -1 and accesible(pos + Down);
     if (sdir == Up)
-      return pos_ok(pos + Up) and (pos.i - 1 >= 0) and dist[pos.i - 1][pos.j] == -1 and accesible(pos + Up);
+      return (pos.i - 1 >= 0) and dist[pos.i - 1][pos.j] == -1 and accesible(pos + Up);
     if (sdir == Left)
-      return pos_ok(pos + Left) and (pos.j - 1 >= 0) and dist[pos.i][pos.j - 1] == -1 and accesible(pos + Left);
+      return (pos.j - 1 >= 0) and dist[pos.i][pos.j - 1] == -1 and accesible(pos + Left);
     if (sdir == Right)
-      return pos_ok(pos + Right) and (pos.j + 1 <= 59) and dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
+      return (pos.j + 1 <= 59) and dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
     
     else return false;
   }
@@ -152,7 +162,7 @@ struct PLAYER_NAME : public Player
       cerr << id << " food not found" << endl;
       return DR;
     }
-    if (dist[posfood.i][posfood.j] > 10)
+    if (dist[posfood.i][posfood.j] > 12)
     {
       cerr << id << " food massa lluny" << endl;
       return DR;
@@ -167,17 +177,36 @@ struct PLAYER_NAME : public Player
     }
     cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << act.i << ' ' << act.j << endl;
 
-    if (posfood.i > p.i and accesible(act+Down))
+    if (act.i > p.i and accesible(act+Down))
       return Down;
-    if (posfood.i < p.i and accesible(act+Up))
+    if (act.i < p.i and accesible(act+Up))
       return Up;
-    if (posfood.j > p.j and accesible(act+Right))
+    if (act.j > p.j and accesible(act+Right))
       return Right;
-    if (posfood.j < p.j and accesible(act+Left))
+    if (act.j < p.j and accesible(act+Left))
       return Left;
 
     return DR;
   }
+
+  void lluita(int id)
+  {
+    Pos pos = unit(alive[id]).pos;
+    int jo = me();
+
+    //get id of adjacent players
+    int jup = cell(pos+Up).id;
+    int jdown = cell(pos+Down).id;
+    int jright = cell(pos+Right).id;
+    int jleft = cell(pos+Left).id;
+
+    if (jup != -1 and strength(jup) < strength(jo)) move (id,Up);
+    if (jdown != -1 and strength(jdown) < strength(jo)) move (id,Down);
+    if (jright != -1 and strength(jright) < strength(jo)) move (id,Right);
+    if (jleft != -1 and strength(jleft) < strength(jo)) move (id,Left);
+  }
+
+
 
   /**
    * Play method, invoked once per each round.
@@ -201,9 +230,9 @@ struct PLAYER_NAME : public Player
       Pos unitpos = unit(alive[id]).pos;
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
       Dir dir = bfs_food(id, unitpos);
-      if (dir != DR and strength(me()) > 90)
+      lluita(id);
+      if (dir != DR)
       {
-        cerr << "som forts " << strength(me()) << endl;
         cerr << "unit " << id << " will go " << dir << endl;
         move(alive[id], dir);
       }
