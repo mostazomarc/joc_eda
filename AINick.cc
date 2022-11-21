@@ -28,9 +28,9 @@ struct PLAYER_NAME : public Player
   const vector<Dir> dirs = {Up, Down, Left, Right};
   vector<int> alive;
 
-   // auxiliars
+  // auxiliars
 
-  //retorna ture si la posició es accesible (no te Waste)
+  // retorna ture si la posició es accesible (no te Waste)
   bool accesible(Pos pos)
   {
     if (pos_ok(pos) and cell(pos).type == Street)
@@ -38,7 +38,7 @@ struct PLAYER_NAME : public Player
     return false;
   }
 
-  //retorna true si a la posició n'hi ha menjar
+  // retorna true si a la posició n'hi ha menjar
   bool menjar(Pos pos)
   {
     if (cell(pos).food)
@@ -46,7 +46,7 @@ struct PLAYER_NAME : public Player
     return false;
   }
 
-  //retorna si la posició es conquerible
+  // retorna si la posició es conquerible
   bool conq(Pos p)
   {
     return pos_ok(p) and cell(p).owner != me() and accesible(p);
@@ -56,13 +56,13 @@ struct PLAYER_NAME : public Player
   Dir space_adj(Pos p)
   {
     Pos act = p;
-    if (conq(act+Down))
+    if (conq(act + Down))
       return Down;
-    if (conq(act+Up))
+    if (conq(act + Up))
       return Up;
-    if (conq(act+Left))
+    if (conq(act + Left))
       return Left;
-    if (conq(act+Right))
+    if (conq(act + Right))
       return Right;
 
     cerr << "no adjacent spaces at pos" << p.i << ',' << p.j << endl;
@@ -78,7 +78,7 @@ struct PLAYER_NAME : public Player
     return Right;
   }
 
-  //retorna si el proxim pas del bfs es una posició accesible i no visitada
+  // retorna si el proxim pas del bfs es una posició accesible i no visitada
   bool proximpas(const Pos pos, const Dir sdir, const vector<vector<int>> &dist)
   {
     if (sdir == Down)
@@ -89,8 +89,8 @@ struct PLAYER_NAME : public Player
       return (pos.j - 1 >= 0) and dist[pos.i][pos.j - 1] == -1 and accesible(pos + Left);
     if (sdir == Right)
       return (pos.j + 1 <= 59) and dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
-    
-    else return false;
+
+    return false;
   }
 
   // Returns Dir to the nearest avialable food
@@ -108,7 +108,7 @@ struct PLAYER_NAME : public Player
     vector<vector<Pos>> previs(n, vector<Pos>(m, posnull)); // previ de cada posició visitada (s'haurà de borrar)
     stack<Pos> camí;
 
-    Q.push(p);          // apuntem primera posició per mirar 
+    Q.push(p);          // apuntem primera posició per mirar
     dist[p.i][p.j] = 0; // distancia primera posició es 0
 
     bool food = false;
@@ -177,48 +177,131 @@ struct PLAYER_NAME : public Player
     }
     cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << act.i << ' ' << act.j << endl;
 
-    if (act.i > p.i and accesible(act+Down))
+    if (act.i > p.i and accesible(act + Down))
       return Down;
-    if (act.i < p.i and accesible(act+Up))
+    if (act.i < p.i and accesible(act + Up))
       return Up;
-    if (act.j > p.j and accesible(act+Right))
+    if (act.j > p.j and accesible(act + Right))
       return Right;
-    if (act.j < p.j and accesible(act+Left))
+    if (act.j < p.j and accesible(act + Left))
       return Left;
 
     return DR;
   }
 
+  void fugir(int id, Dir direnem)
+  {
+    Pos pos = unit(alive[id]).pos;
+    if (direnem == Up)
+    {
+      if (accesible(pos + Down) and cell(pos + Down).id == -1)
+        move(id, Down);
+      else if (accesible(pos + Left) and cell(pos + Left).id == -1)
+        move(id, Left);
+      else if (accesible(pos + Right) and cell(pos + Right).id == -1)
+        move(id, Right);
+      else
+        move(id, Up);
+    }
+    else if (direnem == Down)
+    {
+      if (accesible(pos + Up) and cell(pos + Up).id == -1)
+        move(id, Up);
+      else if (accesible(pos + Left) and cell(pos + Left).id == -1)
+        move(id, Left);
+      else if (accesible(pos + Right) and cell(pos + Right).id == -1)
+        move(id, Right);
+      else
+        move(id, Down);
+    }
+    else if (direnem == Right)
+    {
+      if (accesible(pos + Left) and cell(pos + Left).id == -1)
+        move(id, Left);
+      else if (accesible(pos + Up) and cell(pos + Up).id == -1)
+        move(id, Up);
+      else if (accesible(pos + Down) and cell(pos + Down).id == -1)
+        move(id, Down);
+      else
+        move(id, Right);
+    }
+    else if (direnem == Left)
+    {
+      if (accesible(pos + Right) and cell(pos + Right).id == -1)
+        move(id, Right);
+      else if (accesible(pos + Up) and cell(pos + Up).id == -1)
+        move(id, Up);
+      else if (accesible(pos + Down) and cell(pos + Down).id == -1)
+        move(id, Down);
+      else
+        move(id, Left);
+    }
+  }
+
+  // comprova les posicions adjacents per enemics i lluita o fuig segons les posibilitats de guanyar
   void lluita(int id)
   {
     Pos pos = unit(alive[id]).pos;
     int jo = me();
 
-    //get id of adjacent players
-    int idup = cell(pos+Up).id;
-    int iddown = cell(pos+Down).id;
-    int idright = cell(pos+Right).id;
-    int idleft = cell(pos+Left).id;
+    // get id of adjacent players
+    int idup = cell(pos + Up).id;
+    int iddown = cell(pos + Down).id;
+    int idright = cell(pos + Right).id;
+    int idleft = cell(pos + Left).id;
 
-    if (idup != -1) {
+    // si soc més fort que la unitat adjacent atacar
+    if (idup != -1)
+    {
       Unit unitup = unit(idup);
-      if (strength(unitup.player) < strength(jo)) move (id,Up);
+      if (strength(unitup.player) < strength(jo))
+        move(id, Up);
     }
-    if (iddown != -1) {
+    else if (iddown != -1)
+    {
       Unit unitdown = unit(iddown);
-      if (strength(unitdown.player) < strength(jo)) move (id,Down);
+      if (strength(unitdown.player) < strength(jo))
+        move(id, Down);
     }
-    if (idright != -1) {
+    else if (idright != -1)
+    {
       Unit unitright = unit(idright);
-      if (strength(unitright.player) < strength(jo)) move (id,Right);
+      if (strength(unitright.player) < strength(jo))
+        move(id, Right);
     }
-    if (idleft != -1) {
+    else if (idleft != -1)
+    {
       Unit unitleft = unit(idleft);
-      if (strength(unitleft.player) < strength(jo)) move (id,Left);
+      if (strength(unitleft.player) < strength(jo))
+        move(id, Left);
+    }
+
+    // si soc més fluix o igual de fort que la unitat adjacent fujir
+    else if (idup != -1)
+    {
+      Unit unitup = unit(idup);
+      if (strength(unitup.player) >= strength(jo))
+        fugir(id, Up);
+    }
+    else if (iddown != -1)
+    {
+      Unit unitdown = unit(iddown);
+      if (strength(unitdown.player) >= strength(jo))
+        fugir(id, Down);
+    }
+    else if (idright != -1)
+    {
+      Unit unitright = unit(idright);
+      if (strength(unitright.player) >= strength(jo))
+        fugir(id, Right);
+    }
+    else if (idleft != -1)
+    {
+      Unit unitleft = unit(idleft);
+      if (strength(unitleft.player) >= strength(jo))
+        fugir(id, Left);
     }
   }
-
-
 
   /**
    * Play method, invoked once per each round.
