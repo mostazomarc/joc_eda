@@ -360,25 +360,25 @@ struct PLAYER_NAME : public Player
       if (idup != -1)
       {
         Unit unitup = unit(idup);
-        if (strength(unitup.player) < strength(jo) or zombie(pos + Up))
+        if ((alive.size() > 12 and unitup.player != jo) or strength(unitup.player) < strength(jo) or zombie(pos + Up))
           move(alive[id], Up);
       }
       else if (iddown != -1)
       {
         Unit unitdown = unit(iddown);
-        if (strength(unitdown.player) < strength(jo) or zombie(pos + Down))
+        if ((alive.size() > 12 and unitdown.player != jo) or strength(unitdown.player) < strength(jo) or zombie(pos + Down))
           move(alive[id], Down);
       }
       else if (idright != -1)
       {
         Unit unitright = unit(idright);
-        if (strength(unitright.player) < strength(jo) or zombie(pos + Right))
+        if ((alive.size() > 12 and unitright.player != jo) or strength(unitright.player) < strength(jo) or zombie(pos + Right))
           move(id, Right);
       }
       else if (idleft != -1)
       {
         Unit unitleft = unit(idleft);
-        if (strength(unitleft.player) < strength(jo) or zombie(pos + Left))
+        if ((alive.size() > 12 and unitleft.player != jo) or strength(unitleft.player) < strength(jo) or zombie(pos + Left))
           move(alive[id], Left);
       }
 
