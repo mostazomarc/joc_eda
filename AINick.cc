@@ -194,47 +194,31 @@ struct PLAYER_NAME : public Player
     Pos pos = unit(alive[id]).pos;
     if (direnem == Up)
     {
-      if (accesible(pos + Down) and cell(pos + Down).id == -1)
-        move(id, Down);
-      else if (accesible(pos + Left) and cell(pos + Left).id == -1)
-        move(id, Left);
-      else if (accesible(pos + Right) and cell(pos + Right).id == -1)
-        move(id, Right);
-      else
-        move(id, Up);
+      if (accesible(pos + Down) and cell(pos + Down).id == -1)  move(id, Down);
+      else if (accesible(pos + Left) and cell(pos + Left).id == -1)  move(id, Left);
+      else if (accesible(pos + Right) and cell(pos + Right).id == -1) move(id, Right);
+      else move(id, Up);
     }
     else if (direnem == Down)
     {
-      if (accesible(pos + Up) and cell(pos + Up).id == -1)
-        move(id, Up);
-      else if (accesible(pos + Left) and cell(pos + Left).id == -1)
-        move(id, Left);
-      else if (accesible(pos + Right) and cell(pos + Right).id == -1)
-        move(id, Right);
-      else
-        move(id, Down);
+      if (accesible(pos + Up) and cell(pos + Up).id == -1) move(id, Up);
+      else if (accesible(pos + Left) and cell(pos + Left).id == -1)  move(id, Left);
+      else if (accesible(pos + Right) and cell(pos + Right).id == -1) move(id, Right);
+      else move(id, Down);
     }
     else if (direnem == Right)
     {
-      if (accesible(pos + Left) and cell(pos + Left).id == -1)
-        move(id, Left);
-      else if (accesible(pos + Up) and cell(pos + Up).id == -1)
-        move(id, Up);
-      else if (accesible(pos + Down) and cell(pos + Down).id == -1)
-        move(id, Down);
-      else
-        move(id, Right);
+      if (accesible(pos + Left) and cell(pos + Left).id == -1) move(id, Left);
+      else if (accesible(pos + Up) and cell(pos + Up).id == -1) move(id, Up);
+      else if (accesible(pos + Down) and cell(pos + Down).id == -1) move(id, Down);
+      else move(id, Right);
     }
     else if (direnem == Left)
     {
-      if (accesible(pos + Right) and cell(pos + Right).id == -1)
-        move(id, Right);
-      else if (accesible(pos + Up) and cell(pos + Up).id == -1)
-        move(id, Up);
-      else if (accesible(pos + Down) and cell(pos + Down).id == -1)
-        move(id, Down);
-      else
-        move(id, Left);
+      if (accesible(pos + Right) and cell(pos + Right).id == -1) move(id, Right);
+      else if (accesible(pos + Up) and cell(pos + Up).id == -1) move(id, Up);
+      else if (accesible(pos + Down) and cell(pos + Down).id == -1) move(id, Down);
+      else move(id, Left);
     }
   }
 
@@ -254,52 +238,44 @@ struct PLAYER_NAME : public Player
     if (idup != -1)
     {
       Unit unitup = unit(idup);
-      if (strength(unitup.player) < strength(jo))
-        move(id, Up);
+      if (strength(unitup.player) < strength(jo)) move(id, Up);
     }
     else if (iddown != -1)
     {
       Unit unitdown = unit(iddown);
-      if (strength(unitdown.player) < strength(jo))
-        move(id, Down);
+      if (strength(unitdown.player) < strength(jo)) move(id, Down);
     }
     else if (idright != -1)
     {
       Unit unitright = unit(idright);
-      if (strength(unitright.player) < strength(jo))
-        move(id, Right);
+      if (strength(unitright.player) < strength(jo)) move(id, Right);
     }
     else if (idleft != -1)
     {
       Unit unitleft = unit(idleft);
-      if (strength(unitleft.player) < strength(jo))
-        move(id, Left);
+      if (strength(unitleft.player) < strength(jo)) move(id, Left);
     }
 
     // si soc més fluix o igual de fort que la unitat adjacent fujir
     else if (idup != -1)
     {
       Unit unitup = unit(idup);
-      if (strength(unitup.player) >= strength(jo))
-        fugir(id, Up);
+      if (strength(unitup.player) >= strength(jo)) fugir(id, Up);
     }
     else if (iddown != -1)
     {
       Unit unitdown = unit(iddown);
-      if (strength(unitdown.player) >= strength(jo))
-        fugir(id, Down);
+      if (strength(unitdown.player) >= strength(jo)) fugir(id, Down);
     }
     else if (idright != -1)
     {
       Unit unitright = unit(idright);
-      if (strength(unitright.player) >= strength(jo))
-        fugir(id, Right);
+      if (strength(unitright.player) >= strength(jo)) fugir(id, Right);
     }
     else if (idleft != -1)
     {
       Unit unitleft = unit(idleft);
-      if (strength(unitleft.player) >= strength(jo))
-        fugir(id, Left);
+      if (strength(unitleft.player) >= strength(jo)) fugir(id, Left);
     }
   }
 
