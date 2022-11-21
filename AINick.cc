@@ -1,3 +1,4 @@
+#include <list>
 #include "Player.hh"
 
 /**
@@ -127,103 +128,112 @@ struct PLAYER_NAME : public Player
     return false;
   }
 
-  // Returns Dir to the nearest avialable food
-  Dir bfs_food(int id, Pos p)
+  // Returns path to the food
+  vector<Pos> bfs_food(const int id, const Pos p, vector<vector<int>> &dist)
   {
-    int i = p.i;
-    int j = p.j;
-    int n = 60;
-    int m = 60;
 
-    Pos posnull(-1, -1);
+    vector<Pos> camíbuit(1);
+    camíbuit[0] = p;
 
-    queue<Pos> Q;                                           // Posicions per mirar (no s'afegirà una pos a la cua si no es accesible)
-    vector<vector<int>> dist(n, vector<int>(m, -1));        // distancia per cada posició
-    vector<vector<Pos>> previs(n, vector<Pos>(m, posnull)); // previ de cada posició visitada (s'haurà de borrar)
-    stack<Pos> camí;
+    queue<vector<Pos>> Q; // Cua de posibles camins
 
-    Q.push(p);          // apuntem primera posició per mirar
+    Q.push(camíbuit);   // apuntem primera posició com a primer pas del camí
     dist[p.i][p.j] = 0; // distancia primera posició es 0
 
     bool food = false;
-    Pos posfood = p;
-    while (not Q.empty() and not food) // and dist[act.i][act.j] <= 7) //mentre n'hi hagin posicions per mirar
+    vector<Pos> camifinal = {p};
+    while (not Q.empty() and not food) // mentre n'hi hagin posicions per mirar i no s'hagi trobat menjar
     {
-      Pos act = Q.front(); // agafem primera posició i la treiem de la cua
+      vector<Pos> camí = Q.front(); // agafem el primer camí i el treiem de la cua
       Q.pop();
-      camí.push(act); // guardem la posició com camí fet
+      Pos act = camí[camí.size() - 1]; // agafem la ultima pos de el camí
 
       // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
 
       if (menjar(act))
       {
         food = true; // si es menjar food = true perque hem trobat menjar
-        posfood = act;
+        camifinal = camí;
         cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
       else
       {
         if (proximpas(act, Down, dist))
         {
-          Q.push(act + Down);                              // afegir pos a la cua
+          vector<Pos> nou_camí = camí;
+          nou_camí.push_back(act + Down);
+          Q.push(nou_camí);                                // afegir nou_camí (camí + nova posicio) a la cua de camins
           dist[act.i + 1][act.j] = dist[act.i][act.j] + 1; // actualitzar distancia
-          previs[act.i + 1][act.j] = act;
         }
         if (proximpas(act, Up, dist))
         {
-          Q.push(act + Up);
+          vector<Pos> nou_camí = camí;
+          nou_camí.push_back(act + Up);
+          Q.push(nou_camí);
           dist[act.i - 1][act.j] = dist[act.i][act.j] + 1;
-          previs[act.i - 1][act.j] = act;
         }
         if (proximpas(act, Left, dist))
         {
-          Q.push(act + Left);
+          vector<Pos> nou_camí = camí;
+          nou_camí.push_back(act + Left);
+          Q.push(nou_camí);
           dist[act.i][act.j - 1] = dist[act.i][act.j] + 1;
-          previs[act.i][act.j - 1] = act;
         }
         if (proximpas(act, Right, dist))
         {
-          Q.push(act + Right);
+          vector<Pos> nou_camí = camí;
+          nou_camí.push_back(act + Right);
+          Q.push(nou_camí);
           dist[act.i][act.j + 1] = dist[act.i][act.j] + 1;
-          previs[act.i][act.j + 1] = act;
         }
       }
     }
 
+    return camifinal;
+  }
+
+  Dir dir_menjar(int id, Pos p)
+  {
+
+    int n = 60;
+    int m = 60;
+
+    vector<vector<int>> dist(n, vector<int>(m, -1));
+    vector<Pos> camí = bfs_food(id, p, dist);
+
     // Si no hem trobat food retornem una dirreció imposible 'DR'
-    if (not food)
+    if (camí.size() < 2)
     {
-      cerr << id << " food not found" << endl;
+      cerr << id << " ERROR: food not found" << endl;
       return DR;
     }
-    if (dist[posfood.i][posfood.j] > 12)
+    Pos food = camí[camí.size() - 1];
+    if (dist[food.i][food.j] > 12)
     {
       cerr << id << " food massa lluny" << endl;
       return DR;
     }
 
     // Obtenim primera posició del camí fet
-    Pos act = posfood;
-    cerr << id << " getting food at " << act.i << ',' << act.j << "from " << p.i << ',' << p.j << endl;
-    while (previs[act.i][act.j] != p)
-    {
-      act = previs[act.i][act.j];
-    }
-    cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << act.i << ' ' << act.j << endl;
+    Pos adjacent = camí[1];
+    cerr << id << " getting food at " << food.i << ',' << food.j << "from " << p.i << ',' << p.j << endl; // WRONG
 
-    if (act.i > p.i and accesible(act + Down))
+    cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << adjacent.i << ' ' << adjacent.j << endl;
+
+    if (adjacent == (p + Down) and accesible(adjacent + Down))
       return Down;
-    if (act.i < p.i and accesible(act + Up))
+    if (adjacent == (p + Up) and accesible(adjacent + Up))
       return Up;
-    if (act.j > p.j and accesible(act + Right))
+    if (adjacent == (p + Right) and accesible(adjacent + Right))
       return Right;
-    if (act.j < p.j and accesible(act + Left))
+    if (adjacent == (p + Left) and accesible(adjacent + Left))
       return Left;
 
+    cout << "ERROR DIRECCIÓ A POSICIÓ SEGUENT NO TROBADA" << endl;
     return DR;
   }
 
-  //la unitat amb id 'id' es mourà a la direcció contraria de direnem per fugir
+  // la unitat amb id 'id' es mourà a la direcció contraria de direnem per fugir
   void fugir(int id, Dir direnem)
   {
     Pos pos = unit(alive[id]).pos;
@@ -301,95 +311,116 @@ struct PLAYER_NAME : public Player
     }
   }
 
-  //retorna true si a la posició p n'hi ha un zombie
-  bool zombie (Pos p)
+  // retorna true si a la posició p n'hi ha un zombie
+  bool zombie(const Pos p)
   {
     int unitid = cell(p).id;
     Unit u = unit(unitid);
-    if(u.type == Zombie) return true;
+    if (u.type == Zombie)
+      return true;
     return false;
   }
 
-
-  // comprova les posicions adjacents per enemics i lluita o fuig segons les posibilitats de guanyar
-  void lluita(int id)
+  bool en_perill(const Pos p)
   {
-    Pos pos = unit(alive[id]).pos;
-    int jo = me();
+    Pos pos = p;
 
-    // get id of adjacent players
     int idup = cell(pos + Up).id;
     int iddown = cell(pos + Down).id;
     int idright = cell(pos + Right).id;
     int idleft = cell(pos + Left).id;
-
-
-    // si soc més fort que la unitat adjacen o aquesta es un zombie atacar
-    if (idup != -1)
-    {
-      Unit unitup = unit(idup);
-      if (strength(unitup.player) < strength(jo) or zombie(pos+Up))
-        move(alive[id], Up);
-    }
-    else if (iddown != -1)
-    {
-      Unit unitdown = unit(iddown);
-      if (strength(unitdown.player) < strength(jo) or zombie(pos+Down))
-        move(alive[id], Down);
-    }
-    else if (idright != -1)
-    {
-      Unit unitright = unit(idright);
-      if (strength(unitright.player) < strength(jo) or zombie(pos+Right))
-        move(id, Right);
-    }
-    else if (idleft != -1)
-    {
-      Unit unitleft = unit(idleft);
-      if (strength(unitleft.player) < strength(jo) or zombie(pos+Left))
-        move(alive[id], Left);
-    }
-
-    //fugir dels zombies en diagonal
     int iddr = cell(pos + DR).id;
     int idru = cell(pos + RU).id;
     int idul = cell(pos + UL).id;
     int idld = cell(pos + LD).id;
-    
-    if(iddr != -1 and zombie(pos+DR)) fugir(id,DR);
-    if(idru != -1 and zombie(pos+RU)) fugir(id,RU);
-    if(idul != -1 and zombie(pos+UL)) fugir(id,UL);
-    if(idld != -1 and zombie(pos+LD)) fugir(id,LD);
 
-
-
-    // si soc més fluix o igual de fort que la unitat adjacent fujir
-    else if (idup != -1)
-    {
-      Unit unitup = unit(idup);
-      if (strength(unitup.player) >= strength(jo))
-        fugir(id, Up);
-    }
-    else if (iddown != -1)
-    {
-      Unit unitdown = unit(iddown);
-      if (strength(unitdown.player) >= strength(jo))
-        fugir(id, Down);
-    }
-    else if (idright != -1)
-    {
-      Unit unitright = unit(idright);
-      if (strength(unitright.player) >= strength(jo))
-        fugir(id, Right);
-    }
-    else if (idleft != -1)
-    {
-      Unit unitleft = unit(idleft);
-      if (strength(unitleft.player) >= strength(jo))
-        fugir(id, Left);
-    }
+    if (idup == -1 or iddown  == -1 or idright  == -1 or  idleft == -1 or iddr == -1 or idru == -1 or idul == -1 or idld == -1) {
+      if (idup != me() or iddown != me() or idright != me() or idleft != me() or iddr != me() or idru != me() or idul != me() or idld != me()) return true;
+      else return false;
+    } else return false;
   }
 
+  // comprova les posicions adjacents per enemics i lluita o fuig segons les posibilitats de guanyar
+  void lluita(const int id)
+  {
+    Pos pos = unit(alive[id]).pos;
+    int jo = me();
+
+    // get id of adjacent units
+    int idup = cell(pos + Up).id;
+    int iddown = cell(pos + Down).id;
+    int idright = cell(pos + Right).id;
+    int idleft = cell(pos + Left).id;
+    int iddr = cell(pos + DR).id;
+    int idru = cell(pos + RU).id;
+    int idul = cell(pos + UL).id;
+    int idld = cell(pos + LD).id;
+
+      // si soc més fort que la unitat adjacen o aquesta es un zombie atacar
+      if (idup != -1)
+      {
+        Unit unitup = unit(idup);
+        if (strength(unitup.player) < strength(jo) or zombie(pos + Up))
+          move(alive[id], Up);
+      }
+      else if (iddown != -1)
+      {
+        Unit unitdown = unit(iddown);
+        if (strength(unitdown.player) < strength(jo) or zombie(pos + Down))
+          move(alive[id], Down);
+      }
+      else if (idright != -1)
+      {
+        Unit unitright = unit(idright);
+        if (strength(unitright.player) < strength(jo) or zombie(pos + Right))
+          move(id, Right);
+      }
+      else if (idleft != -1)
+      {
+        Unit unitleft = unit(idleft);
+        if (strength(unitleft.player) < strength(jo) or zombie(pos + Left))
+          move(alive[id], Left);
+      }
+
+      // fugir dels zombies en diagonal
+
+      if (iddr != -1 and zombie(pos + DR))
+        fugir(id, DR);
+      if (idru != -1 and zombie(pos + RU))
+        fugir(id, RU);
+      if (idul != -1 and zombie(pos + UL))
+        fugir(id, UL);
+      if (idld != -1 and zombie(pos + LD))
+        fugir(id, LD);
+
+      // si soc més fluix o igual de fort que la unitat adjacent fujir
+      else if (idup != -1)
+      {
+        Unit unitup = unit(idup);
+        if (strength(unitup.player) >= strength(jo) and unitup.player != me())
+          fugir(id, Up);
+      }
+      else if (iddown != -1)
+      {
+        Unit unitdown = unit(iddown);
+        if (strength(unitdown.player) >= strength(jo)  and unitdown.player != me())
+          fugir(id, Down);
+      }
+      else if (idright != -1)
+      {
+        Unit unitright = unit(idright);
+        if (strength(unitright.player) >= strength(jo)  and unitright.player != me())
+          fugir(id, Right);
+      }
+      else if (idleft != -1)
+      {
+        Unit unitleft = unit(idleft);
+        if (strength(unitleft.player) >= strength(jo)  and unitleft.player != me())
+          fugir(id, Left);
+      }
+
+      
+  }
 
   // Returns Dir to the nearest avialable food
   Dir bfs_space(int id, Pos p)
@@ -488,8 +519,8 @@ struct PLAYER_NAME : public Player
   virtual void play()
   {
 
-    alive = alive_units(me()); //actualitzem el vector de ids de les meves unitats
-    int força = strength(me()); //obtenim la nostra força
+    alive = alive_units(me());  // actualitzem el vector de ids de les meves unitats
+    int força = strength(me()); // obtenim la nostra força
 
     // Write debugging info about my units
     cerr << "At round " << round() << " player " << me() << " has " << alive.size() << " alive units: ";
@@ -501,22 +532,24 @@ struct PLAYER_NAME : public Player
 
     for (int id = 0; id < alive.size(); ++id)
     {
-      Pos unitpos = unit(alive[id]).pos;
-      cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
-      Dir dir = bfs_food(id, unitpos); //buscar direcció al menjar més proper
-      lluita(id); //lluitar si fa falta
-      if (dir != DR) 
-      {
-        cerr << "unit " << id << " will go " << dir << endl;
-        move(alive[id], dir); //si s'ha trobat menjar moure's cap a ell
-      }
-      else
-      {
-        cerr << "conquistant..." << endl;
-        dir = space_adj(id, unitpos); //direcció al space conquerible més proper
-        cerr << "unit " << id << " conquistara cap a " << dir << endl;
-        move(alive[id], dir); //ens movem cap allà
-      }
+      Pos unitpos = unit(alive[id]).pos;  
+
+      if (en_perill(unitpos)) lluita(id); // lluitar si fa falta                                 
+       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
+        Dir dir = dir_menjar(id, unitpos); // buscar direcció al menjar més proper
+        if (dir != DR)
+        {
+          cerr << "unit " << id << " will go " << dir << endl;
+          move(alive[id], dir); // si s'ha trobat menjar moure's cap a ell
+        }
+        else
+        {
+          cerr << "conquistant..." << endl;
+          dir = space_adj(id, unitpos); // direcció al space conquerible més proper
+          cerr << "unit " << id << " conquistara cap a " << dir << endl;
+          move(alive[id], dir); // ens movem cap allà
+        }
+      
     }
   }
 };
