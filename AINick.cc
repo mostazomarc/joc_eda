@@ -69,17 +69,16 @@ struct PLAYER_NAME : public Player
     return false;
   }
 
-  bool proximpas(const Pos pos, const Dir sdir, const vector<vector<Pos>> &previs)
+  bool proximpas(const Pos pos, const Dir sdir, const vector<vector<int>> &dist)
   {
-    Pos posnull(-1, -1);
     if (sdir == Down)
-      return pos_ok(pos + Down) and (pos.i + 1 <= 59) and previs[pos.i + 1][pos.j] == posnull and accesible(pos + Down);
+      return pos_ok(pos + Down) and (pos.i + 1 <= 59) and dist[pos.i + 1][pos.j] == -1 and accesible(pos + Down);
     if (sdir == Up)
-      return pos_ok(pos + Up) and (pos.i - 1 >= 0) and previs[pos.i - 1][pos.j] == posnull and accesible(pos + Up);
+      return pos_ok(pos + Up) and (pos.i - 1 >= 0) and dist[pos.i - 1][pos.j] == -1 and accesible(pos + Up);
     if (sdir == Left)
-      return pos_ok(pos + Left) and (pos.j - 1 >= 0) and previs[pos.i][pos.j - 1] == posnull and accesible(pos + Left);
+      return pos_ok(pos + Left) and (pos.j - 1 >= 0) and dist[pos.i][pos.j - 1] == -1 and accesible(pos + Left);
     if (sdir == Right)
-      return pos_ok(pos + Right) and (pos.j + 1 <= 59) and previs[pos.i][pos.j + 1] == posnull and accesible(pos + Right);
+      return pos_ok(pos + Right) and (pos.j + 1 <= 59) and dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
     
     else return false;
   }
@@ -96,7 +95,7 @@ struct PLAYER_NAME : public Player
 
     queue<Pos> Q;                                           // Posicions per mirar
     vector<vector<int>> dist(n, vector<int>(m, -1));        // distancia per cada posició
-    vector<vector<Pos>> previs(n, vector<Pos>(m, posnull)); // previ de cada posició visitada
+    vector<vector<Pos>> previs(n, vector<Pos>(m, posnull)); // previ de cada posició visitada (s'haurà de borrar)
     stack<Pos> camí;
 
     Q.push(p);          // apuntem primera posició per mirar
@@ -120,25 +119,25 @@ struct PLAYER_NAME : public Player
       }
       else
       {
-        if (proximpas(act, Down, previs))
+        if (proximpas(act, Down, dist))
         {
           Q.push(act + Down);                              // afegir pos a la cua
           dist[act.i + 1][act.j] = dist[act.i][act.j] + 1; // actualitzar distancia
           previs[act.i + 1][act.j] = act;
         }
-        if (proximpas(act, Up, previs))
+        if (proximpas(act, Up, dist))
         {
           Q.push(act + Up);
           dist[act.i - 1][act.j] = dist[act.i][act.j] + 1;
           previs[act.i - 1][act.j] = act;
         }
-        if (proximpas(act, Left, previs))
+        if (proximpas(act, Left, dist))
         {
           Q.push(act + Left);
           dist[act.i][act.j - 1] = dist[act.i][act.j] + 1;
           previs[act.i][act.j - 1] = act;
         }
-        if (proximpas(act, Right, previs))
+        if (proximpas(act, Right, dist))
         {
           Q.push(act + Right);
           dist[act.i][act.j + 1] = dist[act.i][act.j] + 1;
