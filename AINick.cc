@@ -312,7 +312,7 @@ struct PLAYER_NAME : public Player
   }
 
   // retorna true si a la posició p n'hi ha un zombie
-  bool zombie(Pos p)
+  bool zombie(const Pos p)
   {
     int unitid = cell(p).id;
     Unit u = unit(unitid);
@@ -321,13 +321,32 @@ struct PLAYER_NAME : public Player
     return false;
   }
 
+  bool en_perill(const Pos p)
+  {
+    Pos pos = p;
+
+    int idup = cell(pos + Up).id;
+    int iddown = cell(pos + Down).id;
+    int idright = cell(pos + Right).id;
+    int idleft = cell(pos + Left).id;
+    int iddr = cell(pos + DR).id;
+    int idru = cell(pos + RU).id;
+    int idul = cell(pos + UL).id;
+    int idld = cell(pos + LD).id;
+
+    if (idup == -1 or iddown  == -1 or idright  == -1 or  idleft == -1 or iddr == -1 or idru == -1 or idul == -1 or idld == -1) {
+      if (idup != me() or iddown != me() or idright != me() or idleft != me() or iddr != me() or idru != me() or idul != me() or idld != me()) return true;
+      else return false;
+    } else return false;
+  }
+
   // comprova les posicions adjacents per enemics i lluita o fuig segons les posibilitats de guanyar
-  void lluita(int id)
+  void lluita(const int id)
   {
     Pos pos = unit(alive[id]).pos;
     int jo = me();
 
-    // get id of adjacent players
+    // get id of adjacent units
     int idup = cell(pos + Up).id;
     int iddown = cell(pos + Down).id;
     int idright = cell(pos + Right).id;
@@ -378,25 +397,25 @@ struct PLAYER_NAME : public Player
       else if (idup != -1)
       {
         Unit unitup = unit(idup);
-        if (strength(unitup.player) >= strength(jo))
+        if (strength(unitup.player) >= strength(jo) and unitup.player != me())
           fugir(id, Up);
       }
       else if (iddown != -1)
       {
         Unit unitdown = unit(iddown);
-        if (strength(unitdown.player) >= strength(jo))
+        if (strength(unitdown.player) >= strength(jo)  and unitdown.player != me())
           fugir(id, Down);
       }
       else if (idright != -1)
       {
         Unit unitright = unit(idright);
-        if (strength(unitright.player) >= strength(jo))
+        if (strength(unitright.player) >= strength(jo)  and unitright.player != me())
           fugir(id, Right);
       }
       else if (idleft != -1)
       {
         Unit unitleft = unit(idleft);
-        if (strength(unitleft.player) >= strength(jo))
+        if (strength(unitleft.player) >= strength(jo)  and unitleft.player != me())
           fugir(id, Left);
       }
 
@@ -515,7 +534,7 @@ struct PLAYER_NAME : public Player
     {
       Pos unitpos = unit(alive[id]).pos;  
 
-      lluita(id); // lluitar si fa falta                                 
+      if (en_perill(unitpos)) lluita(id); // lluitar si fa falta                                 
        cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
         Dir dir = dir_menjar(id, unitpos); // buscar direcció al menjar més proper
         if (dir != DR)
