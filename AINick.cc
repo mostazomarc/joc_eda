@@ -1,3 +1,4 @@
+#include <list>
 #include "Player.hh"
 
 /**
@@ -89,13 +90,13 @@ struct PLAYER_NAME : public Player
   bool proximpas(const Pos pos, const Dir sdir, const vector<vector<int>> &dist)
   {
     if (sdir == Down)
-      return (pos.i + 1 <= 59) and dist[pos.i + 1][pos.j] == -1 and accesible(pos + Down);
+      return dist[pos.i + 1][pos.j] == -1 and accesible(pos + Down);
     if (sdir == Up)
-      return (pos.i - 1 >= 0) and dist[pos.i - 1][pos.j] == -1 and accesible(pos + Up);
+      return dist[pos.i - 1][pos.j] == -1 and accesible(pos + Up);
     if (sdir == Left)
-      return (pos.j - 1 >= 0) and dist[pos.i][pos.j - 1] == -1 and accesible(pos + Left);
+      return dist[pos.i][pos.j - 1] == -1 and accesible(pos + Left);
     if (sdir == Right)
-      return (pos.j + 1 <= 59) and dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
+      return dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
 
     return false;
   }
@@ -127,99 +128,114 @@ struct PLAYER_NAME : public Player
     return false;
   }
 
-  // Returns Dir to the nearest avialable food
-  Dir bfs_food(int id, Pos p)
+  // Returns path to the food
+  list<Pos> bfs_food(const int id, const Pos p, vector<vector<int>>& dist)
   {
-    int i = p.i;
-    int j = p.j;
-    int n = 60;
-    int m = 60;
 
     Pos posnull(-1, -1);
 
-    queue<Pos> Q;                                           // Posicions per mirar (no s'afegirà una pos a la cua si no es accesible)
-    vector<vector<int>> dist(n, vector<int>(m, -1));        // distancia per cada posició
-    vector<vector<Pos>> previs(n, vector<Pos>(m, posnull)); // previ de cada posició visitada (s'haurà de borrar)
-    stack<Pos> camí;
+    queue<list<Pos>> Q;                                     // Cua de posibles camins
+    
 
-    Q.push(p);          // apuntem primera posició per mirar
+    Q.push({p});          // apuntem primera posició com a primer pas del camí
     dist[p.i][p.j] = 0; // distancia primera posició es 0
 
     bool food = false;
-    Pos posfood = p;
-    while (not Q.empty() and not food) // and dist[act.i][act.j] <= 7) //mentre n'hi hagin posicions per mirar
+    list<Pos> camifinal = {};
+    while (not Q.empty() and not food) //mentre n'hi hagin posicions per mirar i no s'hagi trobat menjar
     {
-      Pos act = Q.front(); // agafem primera posició i la treiem de la cua
+      list<Pos> camí = Q.front(); // agafem el primer camí i el treiem de la cua
       Q.pop();
-      camí.push(act); // guardem la posició com camí fet
+      list<Pos>::iterator ultimapos = Q.end();
+      --ultimapos;
+      Pos act = *ultimapos; // agafem la ultima pos de el camí
 
       // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
 
       if (menjar(act))
       {
         food = true; // si es menjar food = true perque hem trobat menjar
-        posfood = act;
+        camifinal = camí;
         cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
       else
       {
         if (proximpas(act, Down, dist))
         {
-          Q.push(act + Down);                              // afegir pos a la cua
+          list<Pos> nou_camí = camí;
+          nou_camí.push_back(act+Down);
+          Q.push(nou_camí);                              // afegir nou_camí (camí + nova posicio) a la cua de camins
           dist[act.i + 1][act.j] = dist[act.i][act.j] + 1; // actualitzar distancia
-          previs[act.i + 1][act.j] = act;
         }
         if (proximpas(act, Up, dist))
         {
-          Q.push(act + Up);
+          list<Pos> nou_camí = camí;
+          nou_camí.push_back(act+Up);
+          Q.push(nou_camí); 
           dist[act.i - 1][act.j] = dist[act.i][act.j] + 1;
-          previs[act.i - 1][act.j] = act;
         }
         if (proximpas(act, Left, dist))
         {
-          Q.push(act + Left);
+          list<Pos> nou_camí = camí;
+          nou_camí.push_back(act+Left);
+          Q.push(nou_camí); 
           dist[act.i][act.j - 1] = dist[act.i][act.j] + 1;
-          previs[act.i][act.j - 1] = act;
         }
         if (proximpas(act, Right, dist))
         {
-          Q.push(act + Right);
+          list<Pos> nou_camí = camí;
+          nou_camí.push_back(act+Right);
+          Q.push(nou_camí); 
           dist[act.i][act.j + 1] = dist[act.i][act.j] + 1;
-          previs[act.i][act.j + 1] = act;
         }
       }
     }
 
+    return camifinal;
+  }
+
+  Dir dir_menjar(int id, Pos p) {
+
+    int n = 60;
+    int m = 60;
+
+    vector<vector<int>> dist(n, vector<int>(m, -1));
+    list<Pos> camí = bfs_food(id, p, dist);
+    
+
     // Si no hem trobat food retornem una dirreció imposible 'DR'
-    if (not food)
+    if (camí.size() < 2)
     {
-      cerr << id << " food not found" << endl;
+      cerr << id << " ERROR: food not found" << endl;
       return DR;
     }
-    if (dist[posfood.i][posfood.j] > 12)
+    Pos food = camí.back();
+    if (dist[food.i][food.j] > 12)
     {
       cerr << id << " food massa lluny" << endl;
       return DR;
     }
 
     // Obtenim primera posició del camí fet
-    Pos act = posfood;
-    cerr << id << " getting food at " << act.i << ',' << act.j << "from " << p.i << ',' << p.j << endl;
-    while (previs[act.i][act.j] != p)
-    {
-      act = previs[act.i][act.j];
-    }
-    cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << act.i << ' ' << act.j << endl;
+    list<Pos>::iterator segonapos = camí.begin();
+    ++segonapos;
 
-    if (act.i > p.i and accesible(act + Down))
+    Pos adjacent = *segonapos;
+    cerr << id << " getting food at " << adjacent.i << ',' << adjacent.j << "from " << p.i << ',' << p.j << endl; //WRONG
+    
+
+    cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << adjacent.i << ' ' << adjacent.j << endl;
+
+    if (adjacent == (p+Down) and accesible(adjacent + Down))
       return Down;
-    if (act.i < p.i and accesible(act + Up))
+    if (adjacent == (p+Up) and accesible(adjacent + Up))
       return Up;
-    if (act.j > p.j and accesible(act + Right))
+    if (adjacent == (p+Right) and accesible(adjacent + Right))
       return Right;
-    if (act.j < p.j and accesible(act + Left))
+    if (adjacent == (p+Left) and accesible(adjacent + Left))
       return Left;
 
+    cout << "ERROR DIRECCIÓ A POSICIÓ SEGUENT NO TROBADA" << endl;
     return DR;
   }
 
@@ -503,7 +519,7 @@ struct PLAYER_NAME : public Player
     {
       Pos unitpos = unit(alive[id]).pos;
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
-      Dir dir = bfs_food(id, unitpos); //buscar direcció al menjar més proper
+      Dir dir = dir_menjar(id, unitpos); //buscar direcció al menjar més proper
       lluita(id); //lluitar si fa falta
       if (dir != DR) 
       {
