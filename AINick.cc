@@ -52,7 +52,7 @@ struct PLAYER_NAME : public Player
     return pos_ok(p) and cell(p).owner != me() and accesible(p);
   }
 
-  // Returns Dir to the nearest avialable adjacent space or somewhere to move otherwise
+  // Returns Dir to the nearest conquer avialable space
   Dir space_adj(int id, Pos p)
   {
     Pos act = p;
@@ -67,9 +67,10 @@ struct PLAYER_NAME : public Player
 
     cerr << "no adjacent spaces at pos" << p.i << ',' << p.j << endl;
 
-    return bfs_space(id, act);
+    Dir dir = bfs_space(id, act);
+    if (dir != DR) return dir;
 
-    /*
+    
     if (pos_ok(act + Up) and cell(act + Up).type == Street)
       return Up;
     if (pos_ok(act + Down) and cell(act + Down).type == Street)
@@ -79,7 +80,7 @@ struct PLAYER_NAME : public Player
     if (pos_ok(act + Left) and cell(act + Left).type == Street)
       return Left;
     return Right;
-    */
+    
   }
 
   // retorna si el proxim pas del bfs es una posició accesible i no visitada
