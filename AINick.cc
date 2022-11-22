@@ -401,14 +401,31 @@ struct PLAYER_NAME : public Player
     int jo = me();
 
     // get id of adjacent units
-    int idup = cell(pos + Up).id;
-    int iddown = cell(pos + Down).id;
-    int idright = cell(pos + Right).id;
-    int idleft = cell(pos + Left).id;
-    int iddr = cell(pos + DR).id;
-    int idru = cell(pos + RU).id;
-    int idul = cell(pos + UL).id;
-    int idld = cell(pos + LD).id;
+    int idup = -1;
+    int iddown = -1;
+    int idright = -1;
+    int idleft = -1;
+    int iddr = -1;
+    int idru = -1;
+    int idul = -1;
+    int idld = -1;
+
+    if (pos_ok(pos + Up))
+      idup = cell(pos + Up).id;
+    if (pos_ok(pos + Down))
+      iddown = cell(pos + Down).id;
+    if (pos_ok(pos + Right))
+      idright = cell(pos + Right).id;
+    if (pos_ok(pos + Left))
+      idleft = cell(pos + Left).id;
+    if (pos_ok(pos + DR))
+      iddr = cell(pos + DR).id;
+    if (pos_ok(pos + RU))
+      idru = cell(pos + RU).id;
+    if (pos_ok(pos + UL))
+      idul = cell(pos + UL).id;
+    if (pos_ok(pos + LD))
+      idld = cell(pos + LD).id;
 
     // si soc més fort que la unitat adjacen o aquesta es un zombie atacar
     if (ganador(pos + Up) or zombie(pos + Up))
