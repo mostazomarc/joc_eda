@@ -32,9 +32,13 @@ struct PLAYER_NAME : public Player
 
   // auxiliars
 
-  // retorna ture si la posició es accesible (no te Waste)
+  // retorna ture si la posició es accesible (no te Waste ni cap unitat morta)
   bool accesible(Pos pos)
   {
+    int unitid = cell(pos).id;
+    if (unitid != -1){
+      Unit u = unit(unitid);
+      if (u.type == Dead) return false;}
     if (pos_ok(pos) and cell(pos).type == Street)
       return true;
     return false;
@@ -258,19 +262,14 @@ struct PLAYER_NAME : public Player
     // Si no hem trobat food retornem una dirreció imposible 'DR'
     if (camí.size() < 2)
     {
-      cerr << id << " ERROR: food not found" << endl;
+      cerr << id << " ERROR: nothing found" << endl;
       return DR;
     }
-    Pos food = camí[camí.size() - 1];
-    if (dist[food.i][food.j] > 12)
-    {
-      cerr << id << " food massa lluny" << endl;
-      return DR;
-    }
+    Pos objectiu = camí[camí.size() - 1];
 
     // Obtenim primera posició del camí fet
     Pos adjacent = camí[1];
-    cerr << id << " getting food at " << food.i << ',' << food.j << "from " << p.i << ',' << p.j << endl; // WRONG
+    cerr << id << " getting food at " << objectiu.i << ',' << objectiu.j << "from " << p.i << ',' << p.j << endl; // WRONG
 
     cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << adjacent.i << ' ' << adjacent.j << endl;
 
