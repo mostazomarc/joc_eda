@@ -36,10 +36,15 @@ struct PLAYER_NAME : public Player
   // retorna ture si la posició es accesible (no te Waste ni cap unitat morta)
   bool accesible(Pos pos)
   {
+    if (not pos_ok(pos))
+      return false;
     int unitid = cell(pos).id;
-    if (unitid != -1){
+    if (unitid != -1)
+    {
       Unit u = unit(unitid);
-      if (u.type == Dead) return false;}
+      if (u.type == Dead)
+        return false;
+    }
     if (pos_ok(pos) and cell(pos).type == Street)
       return true;
     return false;
@@ -48,6 +53,8 @@ struct PLAYER_NAME : public Player
   // retorna true si a la posició n'hi ha menjar
   bool menjar(Pos pos)
   {
+    if (not pos_ok(pos))
+      return false;
     if (cell(pos).food)
       return true;
     return false;
@@ -56,8 +63,11 @@ struct PLAYER_NAME : public Player
   // retorna true si a la posició p n'hi ha un zombie
   bool zombie(const Pos p)
   {
+    if (not pos_ok(p))
+      return false;
     int unitid = cell(p).id;
-    if (unitid == -1) return false;
+    if (unitid == -1)
+      return false;
     Unit u = unit(unitid);
     if (u.type == Zombie)
       return true;
@@ -66,8 +76,11 @@ struct PLAYER_NAME : public Player
 
   bool enemic(Pos p)
   {
+    if (not pos_ok(p))
+      return false;
     int unitid = cell(p).id;
-    if (unitid == -1) return false;
+    if (unitid == -1)
+      return false;
     Unit u = unit(unitid);
     if (u.player != me() and u.player != -1)
       return true;
@@ -76,6 +89,8 @@ struct PLAYER_NAME : public Player
 
   bool ganador(Pos p)
   {
+    if (not pos_ok(p))
+      return false;
     int id = cell(p).id;
     if (id != -1)
     {
@@ -109,23 +124,8 @@ struct PLAYER_NAME : public Player
     if (conq(act + Right))
       return Right;
 
+    return DR;
     cerr << "no adjacent spaces at pos" << p.i << ',' << p.j << endl;
-
-    // buscar direcció cap al space més proxim
-    Dir dir = bfs_space(id, act);
-    if (dir != DR)
-      return dir;
-
-    // si no hem trobat cap space moures cap a on sigui
-    if (pos_ok(act + Up) and cell(act + Up).type == Street)
-      return Up;
-    if (pos_ok(act + Down) and cell(act + Down).type == Street)
-      return Down;
-    if (pos_ok(act + Right) and cell(act + Right).type == Street)
-      return Right;
-    if (pos_ok(act + Left) and cell(act + Left).type == Street)
-      return Left;
-    return Right;
   }
 
   // retorna si el proxim pas del bfs es una posició accesible i no visitada
@@ -139,33 +139,6 @@ struct PLAYER_NAME : public Player
       return (pos.j - 1 >= 0) and dist[pos.i][pos.j - 1] == -1 and accesible(pos + Left);
     if (sdir == Right)
       return (pos.j + 1 <= 59) and dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
-
-    return false;
-  }
-
-  // retorna si el proxim pas del bfs es una posició accesible, no visitada i que no hi ha cap unitat en aquesta
-  bool proximpas_space(const int id, const Pos pos, const Dir sdir, const vector<vector<int>> &dist)
-  {
-    if (sdir == Down)
-      if (cell(pos + Down).id == -1)
-      {
-        return (pos.i + 1 <= 59) and dist[pos.i + 1][pos.j] == -1 and accesible(pos + Down);
-      }
-    if (sdir == Up)
-      if (cell(pos + Up).id == -1)
-      {
-        return (pos.i - 1 >= 0) and dist[pos.i - 1][pos.j] == -1 and accesible(pos + Up);
-      }
-    if (sdir == Left)
-      if (cell(pos + Left).id == -1)
-      {
-        return (pos.j - 1 >= 0) and dist[pos.i][pos.j - 1] == -1 and accesible(pos + Left);
-      }
-    if (sdir == Right)
-      if (cell(pos + Right).id == -1)
-      {
-        return (pos.j + 1 <= 59) and dist[pos.i][pos.j + 1] == -1 and accesible(pos + Right);
-      }
 
     return false;
   }
@@ -191,20 +164,21 @@ struct PLAYER_NAME : public Player
       Pos act = camí[camí.size() - 1]; // agafem la ultima pos de el camí
 
       // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
-      
-      if (menjar(act) and (dist[act.i][act.j] < mindistmenjar or alive.size() > maxunitats))
+
+      if (menjar(act) and (dist[act.i][act.j] <= mindistmenjar or alive.size() > maxunitats))
       {
         found = true; // si es menjar food = true perque hem trobat menjar
         camifinal = camí;
         cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (zombie(act) and dist[act.i][act.j] < 12 and alive.size() < maxunitats)
+      else if (zombie(act) and dist[act.i][act.j] < mindistenemics and alive.size() < maxunitats)
       {
         found = true;
         camifinal = camí;
         cerr << id << " found zombie at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if(conq(act) and dist[act.i][act.j] >= mindistmenjar and alive.size() < maxunitats ) {
+      else if (conq(act) and dist[act.i][act.j] >= mindistmenjar and alive.size() < maxunitats)
+      {
         found = true;
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
@@ -215,7 +189,8 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found enemic at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if(conq(act) and dist[act.i][act.j] >= mindistmenjar and alive.size() < maxunitats ) {
+      else if (conq(act) and dist[act.i][act.j] >= mindistmenjar and alive.size() < maxunitats)
+      {
         found = true;
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
@@ -280,13 +255,13 @@ struct PLAYER_NAME : public Player
     cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << adjacent.i << ' ' << adjacent.j << endl;
 
     if (adjacent == (p + Down) and accesible(adjacent + Down))
-      return Down;
-    if (adjacent == (p + Up) and accesible(adjacent + Up))
-      return Up;
-    if (adjacent == (p + Right) and accesible(adjacent + Right))
-      return Right;
-    if (adjacent == (p + Left) and accesible(adjacent + Left))
-      return Left;
+       move(alive[id],Down);
+    else if (adjacent == (p + Up) and accesible(adjacent + Up))
+      move(alive[id],Up);
+    else if (adjacent == (p + Right) and accesible(adjacent + Right))
+       move(alive[id],Right);
+    else if (adjacent == (p + Left) and accesible(adjacent + Left))
+      move(alive[id],Left);
 
     cout << "ERROR DIRECCIÓ A POSICIÓ SEGUENT NO TROBADA" << endl;
     return DR;
@@ -374,16 +349,33 @@ struct PLAYER_NAME : public Player
   {
     Pos pos = p;
 
-    int idup = cell(pos + Up).id;
-    int iddown = cell(pos + Down).id;
-    int idright = cell(pos + Right).id;
-    int idleft = cell(pos + Left).id;
-    int iddr = cell(pos + DR).id;
-    int idru = cell(pos + RU).id;
-    int idul = cell(pos + UL).id;
-    int idld = cell(pos + LD).id;
+    int idup = -1;
+    int iddown = -1;
+    int idright = -1;
+    int idleft = -1;
+    int iddr = -1;
+    int idru = -1;
+    int idul = -1;
+    int idld = -1;
 
-    if (idup == -1 or iddown == -1 or idright == -1 or idleft == -1 or iddr == -1 or idru == -1 or idul == -1 or idld == -1)
+    if (pos_ok(p + Up))
+      idup = cell(pos + Up).id;
+    if (pos_ok(p + Down))
+      iddown = cell(pos + Down).id;
+    if (pos_ok(p + Right))
+      idright = cell(pos + Right).id;
+    if (pos_ok(p + Left))
+      idleft = cell(pos + Left).id;
+    if (pos_ok(p + DR))
+      iddr = cell(pos + DR).id;
+    if (pos_ok(p + RU))
+      idru = cell(pos + RU).id;
+    if (pos_ok(p + UL))
+      idul = cell(pos + UL).id;
+    if (pos_ok(p + LD))
+      idld = cell(pos + LD).id;
+
+    if (idup != -1 or iddown != -1 or idright != -1 or idleft != -1 or iddr != -1 or idru != -1 or idul != -1 or idld != -1)
     {
       if (idup != me() or iddown != me() or idright != me() or idleft != me() or iddr != me() or idru != me() or idul != me() or idld != me())
         return true;
@@ -401,14 +393,32 @@ struct PLAYER_NAME : public Player
     int jo = me();
 
     // get id of adjacent units
-    int idup = cell(pos + Up).id;
-    int iddown = cell(pos + Down).id;
-    int idright = cell(pos + Right).id;
-    int idleft = cell(pos + Left).id;
-    int iddr = cell(pos + DR).id;
-    int idru = cell(pos + RU).id;
-    int idul = cell(pos + UL).id;
-    int idld = cell(pos + LD).id;
+
+    int idup = -1;
+    int iddown = -1;
+    int idright = -1;
+    int idleft = -1;
+    int iddr = -1;
+    int idru = -1;
+    int idul = -1;
+    int idld = -1;
+
+    if (pos_ok(pos + Up))
+      idup = cell(pos + Up).id;
+    if (pos_ok(pos + Down))
+      iddown = cell(pos + Down).id;
+    if (pos_ok(pos + Right))
+      idright = cell(pos + Right).id;
+    if (pos_ok(pos + Left))
+      idleft = cell(pos + Left).id;
+    if (pos_ok(pos + DR))
+      iddr = cell(pos + DR).id;
+    if (pos_ok(pos + RU))
+      idru = cell(pos + RU).id;
+    if (pos_ok(pos + UL))
+      idul = cell(pos + UL).id;
+    if (pos_ok(pos + LD))
+      idld = cell(pos + LD).id;
 
     // si soc més fort que la unitat adjacen o aquesta es un zombie atacar
     if (ganador(pos + Up) or zombie(pos + Up))
@@ -417,7 +427,6 @@ struct PLAYER_NAME : public Player
       move(alive[id], Down);
     else if (ganador(pos + Right) or zombie(pos + Right))
       move(id, Right);
-
     else if (ganador(pos + Left) or zombie(pos + Left))
       move(alive[id], Left);
 
@@ -457,97 +466,6 @@ struct PLAYER_NAME : public Player
       if (strength(unitleft.player) >= strength(jo) and unitleft.player != me())
         fugir(id, Left);
     }
-  }
-
-  // Returns Dir to the nearest avialable food
-  Dir bfs_space(int id, Pos p)
-  {
-    int i = p.i;
-    int j = p.j;
-    int n = 60;
-    int m = 60;
-
-    Pos posnull(-1, -1);
-
-    queue<Pos> Q;                                           // Posicions per mirar (no s'afegirà una pos a la cua si no es accesible)
-    vector<vector<int>> dist(n, vector<int>(m, -1));        // distancia per cada posició
-    vector<vector<Pos>> previs(n, vector<Pos>(m, posnull)); // previ de cada posició visitada (s'haurà de borrar)
-    stack<Pos> camí;
-
-    Q.push(p);          // apuntem primera posició per mirar
-    dist[p.i][p.j] = 0; // distancia primera posició es 0
-
-    bool space = false;
-    Pos posspace = p;
-    while (not Q.empty() and not space) // mentre n'hi hagin posicions per mirar
-    {
-      Pos act = Q.front(); // agafem primera posició i la treiem de la cua
-      Q.pop();
-      camí.push(act); // guardem la posició com camí fet
-
-      // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
-
-      if (conq(act))
-      {
-        space = true; // si es menjar food = true perque hem trobat menjar
-        posspace = act;
-        cerr << id << " conquerable space at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
-      }
-      else
-      {
-        if (proximpas_space(id, act, Down, dist))
-        {
-          Q.push(act + Down);                              // afegir pos a la cua
-          dist[act.i + 1][act.j] = dist[act.i][act.j] + 1; // actualitzar distancia
-          previs[act.i + 1][act.j] = act;
-        }
-        if (proximpas_space(id, act, Up, dist))
-        {
-          Q.push(act + Up);
-          dist[act.i - 1][act.j] = dist[act.i][act.j] + 1;
-          previs[act.i - 1][act.j] = act;
-        }
-        if (proximpas_space(id, act, Left, dist))
-        {
-          Q.push(act + Left);
-          dist[act.i][act.j - 1] = dist[act.i][act.j] + 1;
-          previs[act.i][act.j - 1] = act;
-        }
-        if (proximpas_space(id, act, Right, dist))
-        {
-          Q.push(act + Right);
-          dist[act.i][act.j + 1] = dist[act.i][act.j] + 1;
-          previs[act.i][act.j + 1] = act;
-        }
-      }
-    }
-
-    // Si no hem trobat space retornem una dirreció imposible 'DR'
-    if (not space)
-    {
-      cerr << id << " SPACE not found" << endl;
-      return DR;
-    }
-
-    // Obtenim primera posició del camí fet
-    Pos act = posspace;
-    cerr << id << " CONQUERING SPACE at " << act.i << ',' << act.j << "from " << p.i << ',' << p.j << endl;
-    while (previs[act.i][act.j] != p)
-    {
-      act = previs[act.i][act.j];
-    }
-    cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << act.i << ' ' << act.j << endl;
-
-    if (act.i > p.i and accesible(act + Down))
-      return Down;
-    if (act.i < p.i and accesible(act + Up))
-      return Up;
-    if (act.j > p.j and accesible(act + Right))
-      return Right;
-    if (act.j < p.j and accesible(act + Left))
-      return Left;
-
-    return DR;
   }
 
   /**
