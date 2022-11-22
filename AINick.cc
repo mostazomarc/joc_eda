@@ -219,11 +219,13 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found enemic at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
+      /*
       else if(conq(act) and dist[act.i][act.j] >= mindistmenjar and alive.size() < maxunitats ) {
         found = true;
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
+      */
       else
       {
         if (proximpas(act, Down, dist))
