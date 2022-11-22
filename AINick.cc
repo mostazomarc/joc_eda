@@ -1,4 +1,3 @@
-#include <list>
 #include "Player.hh"
 
 /**
@@ -165,7 +164,7 @@ struct PLAYER_NAME : public Player
   }
 
   // Returns path to the food
-  vector<Pos> bfs_food(const int id, const Pos p, vector<vector<int>> &dist)
+  vector<Pos> bfs(const int id, const Pos p, vector<vector<int>> &dist)
   {
 
     vector<Pos> camíbuit(1);
@@ -185,24 +184,29 @@ struct PLAYER_NAME : public Player
       Pos act = camí[camí.size() - 1]; // agafem la ultima pos de el camí
 
       // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
-
+      
       if (menjar(act) and dist[act.i][act.j] < 12)
       {
         found = true; // si es menjar food = true perque hem trobat menjar
         camifinal = camí;
         cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (zombie(act))
+      else if (zombie(act) and dist[act.i][act.j] < 12 and alive.size() < 15)
       {
         found = true;
         camifinal = camí;
         cerr << id << " found zombie at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (enemic(act) and ganador(act))
+      else if (enemic(act) and ganador(act) and dist[act.i][act.j] < 12)
       {
         found = true;
         camifinal = camí;
         cerr << id << " found enemic at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
+      }
+      else if(conq(act) and dist[act.i][act.j] >= 12 ) {
+        found = true;
+        camifinal = camí;
+        cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
       else
       {
@@ -247,7 +251,7 @@ struct PLAYER_NAME : public Player
     int m = 60;
 
     vector<vector<int>> dist(n, vector<int>(m, -1));
-    vector<Pos> camí = bfs_food(id, p, dist);
+    vector<Pos> camí = bfs(id, p, dist);
 
     // Si no hem trobat food retornem una dirreció imposible 'DR'
     if (camí.size() < 2)
