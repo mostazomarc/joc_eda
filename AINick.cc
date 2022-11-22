@@ -30,6 +30,7 @@ struct PLAYER_NAME : public Player
   const int maxunitats = 15;
   const int mindistmenjar = 12;
   const int mindistenemics = 9;
+  bool moures = true;
 
   // auxiliars
 
@@ -444,16 +445,37 @@ struct PLAYER_NAME : public Player
       idul = cell(pos + UL).id;
     if (pos_ok(pos + LD))
       idld = cell(pos + LD).id;
+      
+      else if (idup != -1)
+    {
+      Unit unitup = unit(idup);
+      if (unitup.rounds_for_zombie == 1) moures = false;
+    }
+    else if (iddown != -1)
+    {
+      Unit unitdown = unit(iddown);
+      if (unitdown.rounds_for_zombie == 1) moures = false;
+    }
+    else if (idright != -1)
+    {
+      Unit unitright = unit(idright);
+      if (unitright.rounds_for_zombie == 1) moures = false;
+    }
+    else if (idleft != -1)
+    {
+      Unit unitleft = unit(idleft);
+      if (unitleft.rounds_for_zombie == 1) moures = false;
+    }
 
     // si soc més fort que la unitat adjacen o aquesta es un zombie atacar
-    if (ganador(pos + Up) or zombie(pos + Up))
+    if ((ganador(pos + Up) and moures) or zombie(pos + Up))
       move(alive[id], Up);
-    else if (ganador(pos + Down) or zombie(pos + Down))
+    else if ((ganador(pos + Down) and moures) or zombie(pos + Down))
       move(alive[id], Down);
-    else if (ganador(pos + Right) or zombie(pos + Right))
+    else if ((ganador(pos + Right) and moures) or zombie(pos + Right))
       move(id, Right);
 
-    else if (ganador(pos + Left) or zombie(pos + Left))
+    else if ((ganador(pos + Left) and moures) or zombie(pos + Left) )
       move(alive[id], Left);
 
     // fugir dels zombies en diagonal
@@ -471,25 +493,29 @@ struct PLAYER_NAME : public Player
     else if (idup != -1)
     {
       Unit unitup = unit(idup);
-      if (strength(unitup.player) >= strength(jo) and unitup.player != me())
+      if (unitup.rounds_for_zombie == 1) moures = false;
+      else if (strength(unitup.player) >= strength(jo) and unitup.player != me())
         fugir(id, Up);
     }
     else if (iddown != -1)
     {
       Unit unitdown = unit(iddown);
-      if (strength(unitdown.player) >= strength(jo) and unitdown.player != me())
+      if (unitdown.rounds_for_zombie == 1) moures = false;
+      else if (strength(unitdown.player) >= strength(jo) and unitdown.player != me())
         fugir(id, Down);
     }
     else if (idright != -1)
     {
       Unit unitright = unit(idright);
-      if (strength(unitright.player) >= strength(jo) and unitright.player != me())
+      if (unitright.rounds_for_zombie == 1) moures = false;
+      else if (strength(unitright.player) >= strength(jo) and unitright.player != me())
         fugir(id, Right);
     }
     else if (idleft != -1)
     {
       Unit unitleft = unit(idleft);
-      if (strength(unitleft.player) >= strength(jo) and unitleft.player != me())
+      if (unitleft.rounds_for_zombie == 1) moures = false;
+      else if (strength(unitleft.player) >= strength(jo) and unitleft.player != me())
         fugir(id, Left);
     }
   }
@@ -606,17 +632,19 @@ struct PLAYER_NAME : public Player
     {
       Pos unitpos = unit(alive[id]).pos;
 
+      moures = true;
+
       if (en_perill(unitpos))
         lluita(id); // lluitar si fa falta
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
       Dir dir = dir_menjar(id, unitpos); // buscar direcció al menjar més proper
-      if (dir != DR)
+      if (dir != DR and moures)
       {
         cerr << "unit " << id << " will go " << dir << endl;
         move(alive[id], dir); // si s'ha trobat menjar moure's cap a ell
       }
       
-      else
+      else if (moures)
       {
         cerr << "conquistant..." << endl;
         dir = space_adj(id, unitpos); // direcció al space conquerible més proper
