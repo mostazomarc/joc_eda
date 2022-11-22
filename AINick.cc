@@ -27,6 +27,8 @@ struct PLAYER_NAME : public Player
    */
   const vector<Dir> dirs = {Up, Down, Left, Right};
   vector<int> alive;
+  const int maxunitats = 15;
+  const int mindist = 12;
 
   // auxiliars
 
@@ -185,25 +187,25 @@ struct PLAYER_NAME : public Player
 
       // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
       
-      if (menjar(act) and dist[act.i][act.j] < 12)
+      if (menjar(act) and (dist[act.i][act.j] < mindist or alive.size() > maxunitats))
       {
         found = true; // si es menjar food = true perque hem trobat menjar
         camifinal = camí;
         cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (zombie(act) and dist[act.i][act.j] < 12 and alive.size() < 15)
+      else if (zombie(act) and dist[act.i][act.j] < 12 and alive.size() < maxunitats)
       {
         found = true;
         camifinal = camí;
         cerr << id << " found zombie at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (enemic(act) and ganador(act) and dist[act.i][act.j] < 12)
+      else if (enemic(act) and ganador(act) and dist[act.i][act.j] < mindist and alive.size() < maxunitats)
       {
         found = true;
         camifinal = camí;
         cerr << id << " found enemic at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if(conq(act) and dist[act.i][act.j] >= 12 ) {
+      else if(conq(act) and dist[act.i][act.j] >= mindist and alive.size() < maxunitats) {
         found = true;
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
