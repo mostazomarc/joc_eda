@@ -51,6 +51,7 @@ struct PLAYER_NAME : public Player
   bool zombie(const Pos p)
   {
     int unitid = cell(p).id;
+    if (unitid == -1) return false;
     Unit u = unit(unitid);
     if (u.type == Zombie)
       return true;
@@ -60,6 +61,7 @@ struct PLAYER_NAME : public Player
   bool enemic(Pos p)
   {
     int unitid = cell(p).id;
+    if (unitid == -1) return false;
     Unit u = unit(unitid);
     if (u.player != me() and u.player != -1)
       return true;
