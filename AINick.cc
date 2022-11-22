@@ -208,24 +208,17 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found zombie at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if(conq(act) and dist[act.i][act.j] >= mindistmenjar and alive.size() < maxunitats ) {
+      else if(conq(act) and dist[act.i][act.j] >= mindistmenjar and 0) {
         found = true;
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (enemic(act) and ganador(act) and dist[act.i][act.j] < mindistenemics and alive.size() < maxunitats)
+      else if (enemic(act) and ganador(act) and dist[act.i][act.j] < mindistenemics)
       {
         found = true;
         camifinal = camí;
         cerr << id << " found enemic at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      /*
-      else if(conq(act) and dist[act.i][act.j] >= mindistmenjar and alive.size() < maxunitats ) {
-        found = true;
-        camifinal = camí;
-        cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
-      }
-      */
       else
       {
         if (proximpas(act, Down, dist))
@@ -259,9 +252,9 @@ struct PLAYER_NAME : public Player
       }
     }
 
-    //if (found)
+    if (found)
      return camifinal;
-    //else return camíbuit;
+    return camíbuit;
   }
 
   Dir dir_menjar(int id, Pos p)
@@ -478,7 +471,7 @@ struct PLAYER_NAME : public Player
     else if (idup != -1)
     {
       Unit unitup = unit(idup);
-      if (strength(unitup.player) >= strength(jo) and unitup.player != me())
+      if (strength(unitup.player) >= strength(jo) and unitup.player != me() )
         fugir(id, Up);
     }
     else if (iddown != -1)
@@ -588,6 +581,7 @@ struct PLAYER_NAME : public Player
       return Right;
     if (act.j < p.j and accesible(act + Left))
       return Left;
+      
 
     return DR;
   }
