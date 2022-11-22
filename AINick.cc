@@ -36,6 +36,7 @@ struct PLAYER_NAME : public Player
   // retorna ture si la posició es accesible (no te Waste ni cap unitat morta)
   bool accesible(Pos pos)
   {
+    if (not pos_ok(pos)) return false;
     int unitid = cell(pos).id;
     if (unitid != -1){
       Unit u = unit(unitid);
@@ -56,6 +57,7 @@ struct PLAYER_NAME : public Player
   // retorna true si a la posició p n'hi ha un zombie
   bool zombie(const Pos p)
   {
+    if (not pos_ok(p))return false;
     int unitid = cell(p).id;
     if (unitid == -1) return false;
     Unit u = unit(unitid);
@@ -66,7 +68,6 @@ struct PLAYER_NAME : public Player
 
   bool enemic(Pos p)
   {
-    if (not pos_ok(p)) return false;
     int unitid = cell(p).id;
     if (unitid == -1) return false;
     Unit u = unit(unitid);
@@ -117,7 +118,7 @@ struct PLAYER_NAME : public Player
     Dir dir = bfs_space(id, act);
     if (dir != DR)
       return dir;
-
+  
     // si no hem trobat cap space moures cap a on sigui
     if (pos_ok(act + Up) and cell(act + Up).type == Street)
       return Up;
@@ -127,6 +128,7 @@ struct PLAYER_NAME : public Player
       return Right;
     if (pos_ok(act + Left) and cell(act + Left).type == Street)
       return Left;
+      
     return Right;
   }
 
@@ -255,7 +257,9 @@ struct PLAYER_NAME : public Player
       }
     }
 
-    return camifinal;
+    //if (found)
+     return camifinal;
+    //else return camíbuit;
   }
 
   Dir dir_menjar(int id, Pos p)
@@ -376,14 +380,31 @@ struct PLAYER_NAME : public Player
   {
     Pos pos = p;
 
-    int idup = cell(pos + Up).id;
-    int iddown = cell(pos + Down).id;
-    int idright = cell(pos + Right).id;
-    int idleft = cell(pos + Left).id;
-    int iddr = cell(pos + DR).id;
-    int idru = cell(pos + RU).id;
-    int idul = cell(pos + UL).id;
-    int idld = cell(pos + LD).id;
+     int idup = -1;
+    int iddown = -1;
+    int idright = -1;
+    int idleft = -1;
+    int iddr = -1;
+    int idru = -1;
+    int idul = -1;
+    int idld = -1;
+
+    if (pos_ok(p + Up))
+      idup = cell(pos + Up).id;
+    if (pos_ok(p + Down))
+      iddown = cell(pos + Down).id;
+    if (pos_ok(p + Right))
+      idright = cell(pos + Right).id;
+    if (pos_ok(p + Left))
+      idleft = cell(pos + Left).id;
+    if (pos_ok(p + DR))
+      iddr = cell(pos + DR).id;
+    if (pos_ok(p + RU))
+      idru = cell(pos + RU).id;
+    if (pos_ok(p + UL))
+      idul = cell(pos + UL).id;
+    if (pos_ok(p + LD))
+      idld = cell(pos + LD).id;
 
     if (idup == -1 or iddown == -1 or idright == -1 or idleft == -1 or iddr == -1 or idru == -1 or idul == -1 or idld == -1)
     {
@@ -599,6 +620,7 @@ struct PLAYER_NAME : public Player
         cerr << "unit " << id << " will go " << dir << endl;
         move(alive[id], dir); // si s'ha trobat menjar moure's cap a ell
       }
+      
       else
       {
         cerr << "conquistant..." << endl;
@@ -606,6 +628,7 @@ struct PLAYER_NAME : public Player
         cerr << "unit " << id << " conquistara cap a " << dir << endl;
         move(alive[id], dir); // ens movem cap allà
       }
+      
     }
   }
 };
