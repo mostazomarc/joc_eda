@@ -66,6 +66,7 @@ struct PLAYER_NAME : public Player
 
   bool enemic(Pos p)
   {
+    if (not pos_ok(p)) return false;
     int unitid = cell(p).id;
     if (unitid == -1) return false;
     Unit u = unit(unitid);
@@ -76,6 +77,7 @@ struct PLAYER_NAME : public Player
 
   bool ganador(Pos p)
   {
+    if (not pos_ok(p))return false;
     int id = cell(p).id;
     if (id != -1)
     {
