@@ -38,11 +38,15 @@ struct PLAYER_NAME : public Player
   // retorna ture si la posició es accesible (no te Waste ni cap unitat morta)
   bool accesible(Pos pos)
   {
-    if (not pos_ok(pos)) return false;
+    if (not pos_ok(pos))
+      return false;
     int unitid = cell(pos).id;
-    if (unitid != -1){
+    if (unitid != -1)
+    {
       Unit u = unit(unitid);
-      if (u.type == Dead) return false;}
+      if (u.type == Dead)
+        return false;
+    }
     if (pos_ok(pos) and cell(pos).type == Street)
       return true;
     return false;
@@ -59,9 +63,11 @@ struct PLAYER_NAME : public Player
   // retorna true si a la posició p n'hi ha un zombie
   bool zombie(const Pos p)
   {
-    if (not pos_ok(p))return false;
+    if (not pos_ok(p))
+      return false;
     int unitid = cell(p).id;
-    if (unitid == -1) return false;
+    if (unitid == -1)
+      return false;
     Unit u = unit(unitid);
     if (u.type == Zombie)
       return true;
@@ -71,7 +77,8 @@ struct PLAYER_NAME : public Player
   bool enemic(Pos p)
   {
     int unitid = cell(p).id;
-    if (unitid == -1) return false;
+    if (unitid == -1)
+      return false;
     Unit u = unit(unitid);
     if (u.player != me() and u.player != -1)
       return true;
@@ -80,7 +87,8 @@ struct PLAYER_NAME : public Player
 
   bool ganador(Pos p)
   {
-    if (not pos_ok(p))return false;
+    if (not pos_ok(p))
+      return false;
     int id = cell(p).id;
     if (id != -1)
     {
@@ -120,7 +128,7 @@ struct PLAYER_NAME : public Player
     Dir dir = bfs_space(id, act);
     if (dir != DR)
       return dir;
-  
+
     // si no hem trobat cap space moures cap a on sigui
     if (pos_ok(act + Up) and cell(act + Up).type == Street)
       return Up;
@@ -130,7 +138,7 @@ struct PLAYER_NAME : public Player
       return Right;
     if (pos_ok(act + Left) and cell(act + Left).type == Street)
       return Left;
-      
+
     return Right;
   }
 
@@ -197,8 +205,8 @@ struct PLAYER_NAME : public Player
       Pos act = camí[camí.size() - 1]; // agafem la ultima pos de el camí
 
       // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
-      
-      if (menjar(act) and((busca == "cerca" and dist[act.i][act.j] <= distcerca) or ((dist[act.i][act.j] <= mindistmenjar or alive.size() > maxunitats) and busca == "menjar")))
+
+      if (menjar(act) and ((busca == "cerca" and dist[act.i][act.j] <= distcerca) or ((dist[act.i][act.j] <= mindistmenjar or alive.size() > maxunitats) and busca == "menjar")))
       {
         found = true; // si es menjar food = true perque hem trobat menjar
         camifinal = camí;
@@ -210,12 +218,13 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found zombie at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if(conq(act) and busca == "conq") {
+      else if (conq(act) and busca == "conq")
+      {
         found = true;
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (enemic(act) and ((busca == "cerca" and dist[act.i][act.j] <= distcerca) or ( dist[act.i][act.j] <= mindistenemics and ganador(act) and busca == "enemic")))
+      else if (enemic(act) and ((busca == "cerca" and dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and ganador(act) and busca == "enemic")))
       {
         found = true;
         camifinal = camí;
@@ -255,18 +264,19 @@ struct PLAYER_NAME : public Player
     }
 
     if (found)
-     return camifinal;
-    else return camíbuit;
+      return camifinal;
+    else
+      return camíbuit;
   }
 
-  Dir dir_menjar(int id, Pos p,const string busca)
+  Dir dir_menjar(int id, Pos p, const string busca)
   {
 
     int n = 60;
     int m = 60;
 
     vector<vector<int>> dist(n, vector<int>(m, -1));
-    vector<Pos> camí = bfs(id, p, dist,busca);
+    vector<Pos> camí = bfs(id, p, dist, busca);
 
     // Si no hem trobat food retornem una dirreció imposible 'DR'
     if (camí.size() < 2)
@@ -377,7 +387,7 @@ struct PLAYER_NAME : public Player
   {
     Pos pos = p;
 
-     int idup = -1;
+    int idup = -1;
     int iddown = -1;
     int idright = -1;
     int idleft = -1;
@@ -613,25 +623,25 @@ struct PLAYER_NAME : public Player
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
       int i = 0;
       Dir dir = DR;
-      while (dir == DR and i < busc.size()) {
-      dir = dir_menjar(id, unitpos,busc[i]); // buscar direcció al menjar més proper
-      ++i;
+      while (dir == DR and i < busc.size())
+      {
+        dir = dir_menjar(id, unitpos, busc[i]); // buscar direcció al menjar més proper
+        ++i;
       }
-    
+
       if (dir != DR)
       {
         cerr << "unit " << id << " will go " << dir << endl;
         move(alive[id], dir); // si s'ha trobat menjar moure's cap a ell
       }
-      
+
       else
       {
         cerr << "conquistant..." << endl;
-        //dir = space_adj(id, unitpos); // direcció al space conquerible més proper
+        // dir = space_adj(id, unitpos); // direcció al space conquerible més proper
         cerr << "unit " << id << " conquistara cap a " << dir << endl;
         move(alive[id], dir); // ens movem cap allà
       }
-      
     }
   }
 };
