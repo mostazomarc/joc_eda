@@ -38,9 +38,9 @@ struct PLAYER_NAME : public Player
   {
     if (not pos_ok(pos)) return false;
     int unitid = cell(pos).id;
-    if (unitid != -1){
-      Unit u = unit(unitid);
-      if (u.type == Dead) return false;}
+    if (unitid != -1) return false;
+     // Unit u = unit(unitid);
+     // if (u.type == Dead) return false;}
     if (pos_ok(pos) and cell(pos).type == Street)
       return true;
     return false;
@@ -266,6 +266,7 @@ struct PLAYER_NAME : public Player
     vector<vector<int>> dist(n, vector<int>(m, -1));
     vector<Pos> camí = bfs(id, p, dist);
 
+
     // Si no hem trobat food retornem una dirreció imposible 'DR'
     if (camí.size() < 2)
     {
@@ -273,6 +274,9 @@ struct PLAYER_NAME : public Player
       return DR;
     }
     Pos objectiu = camí[camí.size() - 1];
+
+    if (dist[objectiu.i][objectiu.j] > 2 and en_perill(unit(alive[id]).pos)) 
+        lluita(id); // lluitar si fa falta
 
     // Obtenim primera posició del camí fet
     Pos adjacent = camí[1];
@@ -606,8 +610,6 @@ struct PLAYER_NAME : public Player
     {
       Pos unitpos = unit(alive[id]).pos;
 
-      if (en_perill(unitpos))
-        lluita(id); // lluitar si fa falta
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
       Dir dir = dir_menjar(id, unitpos); // buscar direcció al menjar més proper
       if (dir != DR)
