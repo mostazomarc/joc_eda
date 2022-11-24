@@ -29,7 +29,9 @@ struct PLAYER_NAME : public Player
   vector<int> alive;
   const int maxunitats = 15;
   const int mindistmenjar = 12;
-  const int mindistenemics = 9;
+  const int mindistenemics = 5;
+  const int distcerca = 3;
+  const vector<string> busc = {"cerca", "menjar", "enemic", "conq"};
 
   // auxiliars
 
@@ -175,7 +177,7 @@ struct PLAYER_NAME : public Player
   }
 
   // Returns path to the food
-  vector<Pos> bfs(const int id, const Pos p, vector<vector<int>> &dist)
+  vector<Pos> bfs(const int id, const Pos p, vector<vector<int>> &dist, const string busca)
   {
 
     vector<Pos> camíbuit(1);
@@ -196,24 +198,24 @@ struct PLAYER_NAME : public Player
 
       // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
       
-      if (menjar(act) and (dist[act.i][act.j] < mindistmenjar or alive.size() > maxunitats))
+      if (menjar(act) and((busca == "cerca" and dist[act.i][act.j] <= distcerca) or ((dist[act.i][act.j] <= mindistmenjar or alive.size() > maxunitats) and busca == "menjar")))
       {
         found = true; // si es menjar food = true perque hem trobat menjar
         camifinal = camí;
         cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (zombie(act) and dist[act.i][act.j] < 12 and alive.size() < maxunitats)
+      else if (zombie(act) and ((busca == "cerca" and dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic")))
       {
         found = true;
         camifinal = camí;
         cerr << id << " found zombie at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if(conq(act) and dist[act.i][act.j] >= mindistmenjar and alive.size() < maxunitats ) {
+      else if(conq(act) and busca == "conq") {
         found = true;
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (enemic(act) and ganador(act) and dist[act.i][act.j] < mindistenemics and alive.size() < maxunitats)
+      else if (enemic(act) and ((busca == "cerca" and dist[act.i][act.j] <= distcerca) or ( dist[act.i][act.j] <= mindistenemics and ganador(act) and busca == "enemic")))
       {
         found = true;
         camifinal = camí;
@@ -252,19 +254,19 @@ struct PLAYER_NAME : public Player
       }
     }
 
-    //if (found)
+    if (found)
      return camifinal;
-    //else return camíbuit;
+    else return camíbuit;
   }
 
-  Dir dir_menjar(int id, Pos p)
+  Dir dir_menjar(int id, Pos p,const string busca)
   {
 
     int n = 60;
     int m = 60;
 
     vector<vector<int>> dist(n, vector<int>(m, -1));
-    vector<Pos> camí = bfs(id, p, dist);
+    vector<Pos> camí = bfs(id, p, dist,busca);
 
     // Si no hem trobat food retornem una dirreció imposible 'DR'
     if (camí.size() < 2)
@@ -276,7 +278,7 @@ struct PLAYER_NAME : public Player
 
     // Obtenim primera posició del camí fet
     Pos adjacent = camí[1];
-    cerr << id << " getting food at " << objectiu.i << ',' << objectiu.j << "from " << p.i << ',' << p.j << endl; // WRONG
+    cerr << id << " getting " << busca << " at " << objectiu.i << ',' << objectiu.j << "from " << p.i << ',' << p.j << endl; // WRONG
 
     cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << adjacent.i << ' ' << adjacent.j << endl;
 
@@ -609,7 +611,13 @@ struct PLAYER_NAME : public Player
       if (en_perill(unitpos))
         lluita(id); // lluitar si fa falta
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
-      Dir dir = dir_menjar(id, unitpos); // buscar direcció al menjar més proper
+      int i = 0;
+      Dir dir = DR;
+      while (dir == DR and i < busc.size()) {
+      dir = dir_menjar(id, unitpos,busc[i]); // buscar direcció al menjar més proper
+      ++i;
+      }
+    
       if (dir != DR)
       {
         cerr << "unit " << id << " will go " << dir << endl;
@@ -619,7 +627,7 @@ struct PLAYER_NAME : public Player
       else
       {
         cerr << "conquistant..." << endl;
-        dir = space_adj(id, unitpos); // direcció al space conquerible més proper
+        //dir = space_adj(id, unitpos); // direcció al space conquerible més proper
         cerr << "unit " << id << " conquistara cap a " << dir << endl;
         move(alive[id], dir); // ens movem cap allà
       }
