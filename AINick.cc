@@ -68,7 +68,7 @@ struct PLAYER_NAME : public Player
     if (unitid == -1)
       return false;
     Unit u = unit(unitid);
-    if (u.type == Zombie)
+    if (u.player== -1)
       return true;
     return false;
   }
@@ -453,7 +453,7 @@ struct PLAYER_NAME : public Player
     else if (iddown != -1 and (ganador(iddown) or zombie(iddown)))
       move(alive[id], Down);
     else if (idright != -1 and (ganador(idright) or zombie(idright)))
-      move(id, Right);
+      move(alive[id], Right);
 
     else if (idright != -1 and (ganador(idright) or zombie(idright)))
       move(alive[id], Left);
@@ -608,7 +608,7 @@ struct PLAYER_NAME : public Player
     {
       Pos unitpos = unit(alive[id]).pos;
 
-      // lluita(id);
+      if (not en_perill(id,unitpos)) {
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
       int i = 0;
       Dir dir = DR;
@@ -630,6 +630,7 @@ struct PLAYER_NAME : public Player
         dir = space_adj(id, unitpos); // direcció al space conquerible més proper
         cerr << "unit " << id << " conquistara cap a " << dir << endl;
         move(alive[id], dir); // ens movem cap allà
+      }
       }
     }
   }
