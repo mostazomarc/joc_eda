@@ -211,7 +211,7 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (zombie(unitid) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic") or round() > (num_rounds()-num_rounds()/4)))
+      else if (zombie(unitid) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic") or (dist[act.i][act.j] <= mindistenemics and busca == "lastenem")))
       {
         found = true;
         camifinal = camí;
@@ -223,7 +223,7 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (enemic(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic") or round() > (num_rounds()-num_rounds()/4)))
+      else if (enemic(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic")  or (dist[act.i][act.j] <= mindistenemics and busca == "lastenem")))
       {
         found = true;
         camifinal = camí;
@@ -454,12 +454,7 @@ struct PLAYER_NAME : public Player
     int força = strength(me()); // obtenim la nostra força
 
     // Write debugging info about my units
-    cerr << "At round " << round() << " player " << me() << " has " << alive.size() << " alive units: ";
-    for (auto id : alive)
-    {
-      cerr << id << " at pos " << unit(id).pos << "; ";
-    }
-    cerr << endl;
+    cerr << "At round " << round() << " player " << me() << " has " << alive.size() << " alive units" << endl;
 
     for (int id : alive)
     {
@@ -468,12 +463,13 @@ struct PLAYER_NAME : public Player
       cerr << "start BFS of " << id << " at pos " << unitpos.i << ',' << unitpos.j << endl;
       int i = 0;
       Dir dir = DR;
-      while (dir == DR and i < busc.size())
+      while (dir == DR and i < busc.size() and round() < (num_rounds()-num_rounds()/4))
       {
         dir = dir_menjar(id, unitpos, busc[i]); // buscar direcció al menjar més proper
         ++i;
       }
-
+      if (round() > (num_rounds()-num_rounds()/4)) dir = dir_menjar(id,unitpos,"lastenem");
+      
       if (dir != DR)
       {
         cerr << "unit " << id << " will go " << dir << endl;
