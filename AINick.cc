@@ -74,7 +74,7 @@ struct PLAYER_NAME : public Player
     return false;
   }
 
-  //retorna true si a la posició n'hi ha un enemic o un zombie
+  // retorna true si a la posició n'hi ha un enemic o un zombie
   bool enemic(Pos p)
   {
     int unitid = cell(p).id;
@@ -86,7 +86,7 @@ struct PLAYER_NAME : public Player
     return false;
   }
 
-  //retorna true si l'enemic de la posició es més fluix que jo o si n'hi ha error
+  // retorna true si l'enemic de la posició es més fluix que jo o si n'hi ha error
   bool ganador(Pos p)
   {
     if (not pos_ok(p))
@@ -234,15 +234,16 @@ struct PLAYER_NAME : public Player
       }
       else
       {
-        for (int i = 0; i < dirs.size(); ++i) {
-          if (proximpas(act, dirs[i], dist))
+        for (int i = 0; i < dirs.size(); ++i)
         {
-          vector<Pos> nou_camí = camí;
-          Pos newpos = act + dirs[i];
-          nou_camí.push_back(newpos);
-          Q.push(nou_camí);                                // afegir nou_camí (camí + nova posicio) a la cua de camins
-          dist[newpos.i][newpos.j] = dist[act.i][act.j] + 1; // actualitzar distancia
-        }
+          if (proximpas(act, dirs[i], dist))
+          {
+            vector<Pos> nou_camí = camí;
+            Pos newpos = act + dirs[i];
+            nou_camí.push_back(newpos);
+            Q.push(nou_camí);                                  // afegir nou_camí (camí + nova posicio) a la cua de camins
+            dist[newpos.i][newpos.j] = dist[act.i][act.j] + 1; // actualitzar distancia
+          }
         }
       }
     }
@@ -467,25 +468,25 @@ struct PLAYER_NAME : public Player
     else if (idup != -1)
     {
       Unit unitup = unit(idup);
-      if (not ganador(pos+Up) and unitup.player != me())
+      if (not ganador(pos + Up) and unitup.player != me())
         fugir(id, Up);
     }
     else if (iddown != -1)
     {
       Unit unitdown = unit(iddown);
-      if (not ganador(pos+Down) and unitdown.player != me())
+      if (not ganador(pos + Down) and unitdown.player != me())
         fugir(id, Down);
     }
     else if (idright != -1)
     {
       Unit unitright = unit(idright);
-      if (not ganador(pos+Right) and unitright.player != me())
+      if (not ganador(pos + Right) and unitright.player != me())
         fugir(id, Right);
     }
     else if (idleft != -1)
     {
       Unit unitleft = unit(idleft);
-      if (not ganador(pos+Left) and unitleft.player != me())
+      if (not ganador(pos + Left) and unitleft.player != me())
         fugir(id, Left);
     }
   }
