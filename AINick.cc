@@ -223,7 +223,7 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (enemic(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic")  or (dist[act.i][act.j] <= mindistenemics and busca == "lastenem")))
+      else if (enemic(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic") or (dist[act.i][act.j] <= mindistenemics and busca == "lastenem")))
       {
         found = true;
         camifinal = camí;
@@ -287,7 +287,6 @@ struct PLAYER_NAME : public Player
     return DR;
   }
 
-
   // retorna true si el player de la unitat no soc jo
   bool not_me(int unitid)
   {
@@ -296,7 +295,6 @@ struct PLAYER_NAME : public Player
       return true;
     return false;
   }
-
 
   // Returns Dir to the nearest avialable food
   Dir bfs_space(int id, Pos p)
@@ -389,60 +387,83 @@ struct PLAYER_NAME : public Player
     return DR;
   }
 
-  //fuig cap a la dirreció contraria de enem
-  void fuig (int id, Dir enem) 
+  // fuig cap a la dirreció contraria de enem
+  void fuig(int id, Dir enem)
   {
     Pos pos = unit(id).pos;
-    if (enem == Up) {
-      if (accesible(pos+Down)) move(id,Down);
-      else if (accesible(pos+Left)) move(id,Left);
-      else if (accesible(pos+Right)) move(id,Right);
-    } else if (enem == Down) {
-      if (accesible(pos+Up)) move(id,Up);
-      else if (accesible(pos+Left)) move(id,Left);
-      else if (accesible(pos+Right)) move(id,Right);
-    } else if (enem == Right) {
-      if (accesible(pos+Left)) move(id,Left);
-      else if (accesible(pos+Up)) move(id,Up);
-      else if (accesible(pos+Down)) move(id,Down);
-    } else if (enem == Left) {
-      if (accesible(pos+Right)) move(id,Right);
-      else if (accesible(pos+Up)) move(id,Up);
-      else if (accesible(pos+Down)) move(id,Down);
+    if (enem == Up)
+    {
+      if (accesible(pos + Down))
+        move(id, Down);
+      else if (accesible(pos + Left))
+        move(id, Left);
+      else if (accesible(pos + Right))
+        move(id, Right);
+    }
+    else if (enem == Down)
+    {
+      if (accesible(pos + Up))
+        move(id, Up);
+      else if (accesible(pos + Left))
+        move(id, Left);
+      else if (accesible(pos + Right))
+        move(id, Right);
+    }
+    else if (enem == Right)
+    {
+      if (accesible(pos + Left))
+        move(id, Left);
+      else if (accesible(pos + Up))
+        move(id, Up);
+      else if (accesible(pos + Down))
+        move(id, Down);
+    }
+    else if (enem == Left)
+    {
+      if (accesible(pos + Right))
+        move(id, Right);
+      else if (accesible(pos + Up))
+        move(id, Up);
+      else if (accesible(pos + Down))
+        move(id, Down);
     }
   }
 
-  //retorna true si ha hagut de fer alguna acció en base a un enemic adjacent
+  // retorna true si ha hagut de fer alguna acció en base a un enemic adjacent
   bool batalla(int id)
   {
     Pos pos = unit(id).pos;
-      for (Dir dir : dirs) 
+    for (Dir dir : dirs)
+    {
+      Pos newpos = pos + dir;
+      if (pos_ok(newpos) and accesible(newpos))
       {
-        Pos newpos = pos + dir;
-        if (pos_ok(newpos) and accesible(newpos))
+        int enemid = cell(newpos).id;
+        if (enemid != -1)
         {
-          int enemid = cell(newpos).id;
-          if (enemid != -1)
+          if (zombie(enemid))
           {
-            if (zombie(enemid)) {
-              cerr << id << " ATACANT ZOMBIE" << endl;
-              move(id,dir);
-              return true;
-            } else if (ganador(enemid) or round() > (num_rounds()-num_rounds()/4)) {
-              cerr << id << " ATACANT ENEMIC" << endl;
-              move(id,dir);
-              return true;
-            } else if (not ganador(enemid) and not_me(enemid)) {
-              cerr << id << " FUIG!" << endl;
-              fuig(id,dir);
-              return true;
-            }
+            cerr << id << " ATACANT ZOMBIE" << endl;
+            move(id, dir);
+            return true;
+          }
+          else if (ganador(enemid) or round() > (num_rounds() - num_rounds() / 4))
+          {
+            cerr << id << " ATACANT ENEMIC" << endl;
+            move(id, dir);
+            return true;
+          }
+          else if (not ganador(enemid) and not_me(enemid))
+          {
+            cerr << id << " FUIG!" << endl;
+            fuig(id, dir);
+            return true;
           }
         }
       }
-      return false;
+    }
+    return false;
   }
-
 
   /**
    * Play method, invoked once per each round.
@@ -459,30 +480,32 @@ struct PLAYER_NAME : public Player
     for (int id : alive)
     {
       Pos unitpos = unit(id).pos;
-      if (not batalla(id)) {
-      cerr << "start BFS of " << id << " at pos " << unitpos.i << ',' << unitpos.j << endl;
-      int i = 0;
-      Dir dir = DR;
-      while (dir == DR and i < busc.size() and round() < (num_rounds()-num_rounds()/3))
+      if (not batalla(id))
       {
-        dir = dir_menjar(id, unitpos, busc[i]); // buscar direcció al menjar més proper
-        ++i;
-      }
-      if (round() > (num_rounds()-num_rounds()/3)) dir = dir_menjar(id,unitpos,"lastenem");
-      
-      if (dir != DR)
-      {
-        cerr << "unit " << id << " will go " << dir << endl;
-        move(id, dir); // si s'ha trobat menjar moure's cap a ell
-      }
+        cerr << "start BFS of " << id << " at pos " << unitpos.i << ',' << unitpos.j << endl;
+        int i = 0;
+        Dir dir = DR;
+        while (dir == DR and i < busc.size() and round() < (num_rounds() - num_rounds() / 3))
+        {
+          dir = dir_menjar(id, unitpos, busc[i]); // buscar direcció al menjar més proper
+          ++i;
+        }
+        if (round() > (num_rounds() - num_rounds() / 3))
+          dir = dir_menjar(id, unitpos, "lastenem");
 
-      else
-      {
-        cerr << "conquistant..." << endl;
-        dir = space_adj(id, unitpos); // direcció al space conquerible més proper
-        cerr << "unit " << id << " conquistara cap a " << dir << endl;
-        move(id, dir); // ens movem cap allà
-      }
+        if (dir != DR)
+        {
+          cerr << "unit " << id << " will go " << dir << endl;
+          move(id, dir); // si s'ha trobat menjar moure's cap a ell
+        }
+
+        else
+        {
+          cerr << "conquistant..." << endl;
+          dir = space_adj(id, unitpos); // direcció al space conquerible més proper
+          cerr << "unit " << id << " conquistara cap a " << dir << endl;
+          move(id, dir); // ens movem cap allà
+        }
       }
     }
   }
