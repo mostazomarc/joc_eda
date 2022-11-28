@@ -392,30 +392,30 @@ struct PLAYER_NAME : public Player
   //fuig cap a la dirreció contraria de enem
   void fuig (int id, Dir enem) 
   {
-    Pos pos = unit(alive[id]).pos;
+    Pos pos = unit(id).pos;
     if (enem == Up) {
-      if (accesible(pos+Down)) move(alive[id],Down);
-      else if (accesible(pos+Left)) move(alive[id],Left);
-      else if (accesible(pos+Right)) move(alive[id],Right);
+      if (accesible(pos+Down)) move(id,Down);
+      else if (accesible(pos+Left)) move(id,Left);
+      else if (accesible(pos+Right)) move(id,Right);
     } else if (enem == Down) {
-      if (accesible(pos+Up)) move(alive[id],Up);
-      else if (accesible(pos+Left)) move(alive[id],Left);
-      else if (accesible(pos+Right)) move(alive[id],Right);
+      if (accesible(pos+Up)) move(id,Up);
+      else if (accesible(pos+Left)) move(id,Left);
+      else if (accesible(pos+Right)) move(id,Right);
     } else if (enem == Right) {
-      if (accesible(pos+Left)) move(alive[id],Left);
-      else if (accesible(pos+Up)) move(alive[id],Up);
-      else if (accesible(pos+Down)) move(alive[id],Down);
+      if (accesible(pos+Left)) move(id,Left);
+      else if (accesible(pos+Up)) move(id,Up);
+      else if (accesible(pos+Down)) move(id,Down);
     } else if (enem == Left) {
-      if (accesible(pos+Right)) move(alive[id],Right);
-      else if (accesible(pos+Up)) move(alive[id],Up);
-      else if (accesible(pos+Down)) move(alive[id],Down);
+      if (accesible(pos+Right)) move(id,Right);
+      else if (accesible(pos+Up)) move(id,Up);
+      else if (accesible(pos+Down)) move(id,Down);
     }
   }
 
   //retorna true si ha hagut de fer alguna acció en base a un enemic adjacent
   bool batalla(int id)
   {
-    Pos pos = unit(alive[id]).pos;
+    Pos pos = unit(id).pos;
       for (Dir dir : dirs) 
       {
         Pos newpos = pos + dir;
@@ -426,11 +426,11 @@ struct PLAYER_NAME : public Player
           {
             if (zombie(enemid)) {
               cerr << id << " ATACANT ZOMBIE" << endl;
-              move(alive[id],dir);
+              move(id,dir);
               return true;
             } else if (ganador(enemid)) {
               cerr << id << " ATACANT ENEMIC" << endl;
-              move(alive[id],dir);
+              move(id,dir);
               return true;
             } else if (not ganador(enemid) and not_me(enemid)) {
               cerr << id << " FUIG!" << endl;
@@ -461,11 +461,11 @@ struct PLAYER_NAME : public Player
     }
     cerr << endl;
 
-    for (int id = 0; id < alive.size(); ++id)
+    for (int id : alive)
     {
-      Pos unitpos = unit(alive[id]).pos;
+      Pos unitpos = unit(id).pos;
       if (not batalla(id)) {
-      cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
+      cerr << "start BFS of " << id << " at pos " << unitpos.i << ',' << unitpos.j << endl;
       int i = 0;
       Dir dir = DR;
       while (dir == DR and i < busc.size())
@@ -477,7 +477,7 @@ struct PLAYER_NAME : public Player
       if (dir != DR)
       {
         cerr << "unit " << id << " will go " << dir << endl;
-        move(alive[id], dir); // si s'ha trobat menjar moure's cap a ell
+        move(id, dir); // si s'ha trobat menjar moure's cap a ell
       }
 
       else
@@ -485,7 +485,7 @@ struct PLAYER_NAME : public Player
         cerr << "conquistant..." << endl;
         dir = space_adj(id, unitpos); // direcció al space conquerible més proper
         cerr << "unit " << id << " conquistara cap a " << dir << endl;
-        move(alive[id], dir); // ens movem cap allà
+        move(id, dir); // ens movem cap allà
       }
       }
     }
