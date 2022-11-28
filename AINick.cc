@@ -427,6 +427,18 @@ struct PLAYER_NAME : public Player
       else if (accesible(pos + Down))
         move(id, Down);
     }
+    else if(enem == DR) {
+      move(id,Up);
+    }
+    else if(enem == UL) {
+      move(id,Down);
+    }
+    else if(enem == RU) {
+      move(id,Down);
+    }
+    else if(enem == LD) {
+      move(id,Up);
+    }
   }
 
   // retorna true si ha hagut de fer alguna acció en base a un enemic adjacent
@@ -473,8 +485,8 @@ struct PLAYER_NAME : public Player
           if (zombie(enemid))
           {
             cerr << id << " FUGINT ZOMBIE DIAGONAL" << endl;
-            //move(id, dir);
-            //return true;
+            fuig(id,dir);
+            return true;
           }
         }
       }
