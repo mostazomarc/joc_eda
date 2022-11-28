@@ -428,16 +428,23 @@ struct PLAYER_NAME : public Player
         move(id, Down);
     }
     else if(enem == DR) {
-      move(id,Up);
+      if (pos_ok(pos + Up)) move(id, Up);
+      else if (pos_ok(pos + Left)) move(id, Left);
     }
     else if(enem == UL) {
-      move(id,Down);
+      if (pos_ok(pos + Down)) move(id,Down);
+      else if (pos_ok(pos + Right))
+        move(id, Right);
     }
     else if(enem == RU) {
-      move(id,Down);
+      if (pos_ok(pos + Down)) move(id,Down);
+      else if (pos_ok(pos + Left))
+        move(id, Left);
     }
     else if(enem == LD) {
-      move(id,Up);
+      if (pos_ok(pos + Up)) move(id,Up);
+      else if (pos_ok(pos + Right))
+        move(id, Right);
     }
   }
 
