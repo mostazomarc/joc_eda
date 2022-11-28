@@ -389,6 +389,59 @@ struct PLAYER_NAME : public Player
     return DR;
   }
 
+  void fuig (int id, Dir enem) 
+  {
+    Pos pos = unit(alive[id]).pos;
+    if (enem == Up) {
+      if (accesible(pos+Down)) move(alive[id],Down);
+      else if (accesible(pos+Left)) move(alive[id],Left);
+      else if (accesible(pos+Right)) move(alive[id],Right);
+    } else if (enem == Down) {
+      if (accesible(pos+Up)) move(alive[id],Up);
+      else if (accesible(pos+Left)) move(alive[id],Left);
+      else if (accesible(pos+Right)) move(alive[id],Right);
+    } else if (enem == Right) {
+      if (accesible(pos+Left)) move(alive[id],Left);
+      else if (accesible(pos+Up)) move(alive[id],Up);
+      else if (accesible(pos+Down)) move(alive[id],Down);
+    } else if (enem == Left) {
+      if (accesible(pos+Right)) move(alive[id],Right);
+      else if (accesible(pos+Up)) move(alive[id],Up);
+      else if (accesible(pos+Down)) move(alive[id],Down);
+    }
+  }
+
+  bool batalla(int id)
+  {
+    Pos pos = unit(alive[id]).pos;
+      for (Dir dir : dirs) 
+      {
+        Pos newpos = pos + dir;
+        if (pos_ok(newpos) and accesible(newpos))
+        {
+          int enemid = cell(newpos).id;
+          if (enemid != -1)
+          {
+            if (zombie(enemid)) {
+              cerr << id << " ATACANT ZOMBIE" << endl;
+              move(alive[id],dir);
+              return true;
+            } else if (ganador(enemid)) {
+              cerr << id << " ATACANT ENEMIC" << endl;
+              move(alive[id],dir);
+              return true;
+            } else if (not ganador(enemid) and not_me(enemid)) {
+              cerr << id << " FUIG!" << endl;
+              fuig(id,dir);
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+  }
+
+
   /**
    * Play method, invoked once per each round.
    */
@@ -409,7 +462,7 @@ struct PLAYER_NAME : public Player
     for (int id = 0; id < alive.size(); ++id)
     {
       Pos unitpos = unit(alive[id]).pos;
-
+      if (not batalla(id)) {
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
       int i = 0;
       Dir dir = DR;
@@ -431,6 +484,7 @@ struct PLAYER_NAME : public Player
         dir = space_adj(id, unitpos); // direcció al space conquerible més proper
         cerr << "unit " << id << " conquistara cap a " << dir << endl;
         move(alive[id], dir); // ens movem cap allà
+      }
       }
     }
   }
