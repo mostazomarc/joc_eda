@@ -234,34 +234,15 @@ struct PLAYER_NAME : public Player
       }
       else
       {
-        
-        if (proximpas(act, Down, dist))
+        for (int i = 0; i < dirs.size(); ++i) {
+          if (proximpas(act, dirs[i], dist))
         {
           vector<Pos> nou_camí = camí;
-          nou_camí.push_back(act + Down);
+          Pos newpos = act + dirs[i];
+          nou_camí.push_back(newpos);
           Q.push(nou_camí);                                // afegir nou_camí (camí + nova posicio) a la cua de camins
-          dist[act.i + 1][act.j] = dist[act.i][act.j] + 1; // actualitzar distancia
+          dist[newpos.i][newpos.j] = dist[act.i][act.j] + 1; // actualitzar distancia
         }
-        if (proximpas(act, Up, dist))
-        {
-          vector<Pos> nou_camí = camí;
-          nou_camí.push_back(act + Up);
-          Q.push(nou_camí);
-          dist[act.i - 1][act.j] = dist[act.i][act.j] + 1;
-        }
-        if (proximpas(act, Left, dist))
-        {
-          vector<Pos> nou_camí = camí;
-          nou_camí.push_back(act + Left);
-          Q.push(nou_camí);
-          dist[act.i][act.j - 1] = dist[act.i][act.j] + 1;
-        }
-        if (proximpas(act, Right, dist))
-        {
-          vector<Pos> nou_camí = camí;
-          nou_camí.push_back(act + Right);
-          Q.push(nou_camí);
-          dist[act.i][act.j + 1] = dist[act.i][act.j] + 1;
         }
       }
     }
