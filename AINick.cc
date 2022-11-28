@@ -365,23 +365,6 @@ struct PLAYER_NAME : public Player
     }
   }
 
-  bool en_perill(const int id, const Pos p)
-  {
-    Pos pos = p;
-
-    for (int i = 0; i < mesdirs.size(); ++i) {
-      int id = -1;
-      if (pos_ok(p + mesdirs[i])) {
-        id = cell(pos + mesdirs[i]).id;
-        if (id != -1 and id != me()) {
-          lluita(id);
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   //retorna true si el player de la unitat no soc jo
   bool not_me(int unitid)
   {
@@ -390,6 +373,24 @@ struct PLAYER_NAME : public Player
       return true;
     return false;
   }
+
+  bool en_perill(const int id, const Pos p)
+  {
+    Pos pos = p;
+
+    for (int i = 0; i < mesdirs.size(); ++i) {
+      int id = -1;
+      if (pos_ok(p + mesdirs[i])) {
+        id = cell(pos + mesdirs[i]).id;
+        if (id != -1 and not_me(id)) {
+          lluita(id);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
 
   // comprova les posicions adjacents per enemics i lluita o fuig segons les posibilitats de guanyar
   void lluita(const int id)
