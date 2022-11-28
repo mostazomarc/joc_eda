@@ -398,6 +398,7 @@ struct PLAYER_NAME : public Player
     Pos pos = unit(alive[id]).pos;
     int jo = me();
 
+    /*
     for (int i = 0; i < mesdirs.size(); ++i) {
       Pos adjacent = pos + mesdirs[i];
       int cellid = -1;
@@ -415,7 +416,8 @@ struct PLAYER_NAME : public Player
       }
     }
     }
-    /*
+    */
+    
 
     // get id of adjacent units
     int idup = -1;
@@ -445,53 +447,53 @@ struct PLAYER_NAME : public Player
       idld = cell(pos + LD).id;
 
     // si soc més fort que la unitat adjacen o aquesta es un zombie atacar
-    if (ganador(pos + Up) or zombie(pos + Up))
+    if (idup != -1 and (ganador(idup) or zombie(idup)))
       move(alive[id], Up);
-    else if (ganador(pos + Down) or zombie(pos + Down))
+    else if (iddown != -1 and (ganador(iddown) or zombie(iddown)))
       move(alive[id], Down);
-    else if (ganador(pos + Right) or zombie(pos + Right))
+    else if (idright != -1 and (ganador(idright) or zombie(idright)))
       move(id, Right);
 
-    else if (ganador(pos + Left) or zombie(pos + Left))
+    else if (idright != -1 and (ganador(idright) or zombie(idright)))
       move(alive[id], Left);
 
     // fugir dels zombies en diagonal
 
-    if (iddr != -1 and zombie(pos + DR))
+    if (iddr != -1 and zombie(iddr))
       fugir(id, DR);
-    if (idru != -1 and zombie(pos + RU))
+    if (idru != -1 and zombie(idru))
       fugir(id, RU);
-    if (idul != -1 and zombie(pos + UL))
+    if (idul != -1 and zombie(idul))
       fugir(id, UL);
-    if (idld != -1 and zombie(pos + LD))
+    if (idld != -1 and zombie(idld))
       fugir(id, LD);
 
     // si soc més fluix o igual de fort que la unitat adjacent fujir
     else if (idup != -1)
     {
       Unit unitup = unit(idup);
-      if (not ganador(pos + Up) and unitup.player != me())
+      if (not ganador(idup) and unitup.player != me())
         fugir(id, Up);
     }
     else if (iddown != -1)
     {
       Unit unitdown = unit(iddown);
-      if (not ganador(pos + Down) and unitdown.player != me())
+      if (not ganador(iddown) and unitdown.player != me())
         fugir(id, Down);
     }
     else if (idright != -1)
     {
       Unit unitright = unit(idright);
-      if (not ganador(pos + Right) and unitright.player != me())
+      if (not ganador(idright) and unitright.player != me())
         fugir(id, Right);
     }
     else if (idleft != -1)
     {
       Unit unitleft = unit(idleft);
-      if (not ganador(pos + Left) and unitleft.player != me())
+      if (not ganador(idleft) and unitleft.player != me())
         fugir(id, Left);
     }
-    */
+    
   }
 
   // Returns Dir to the nearest avialable food
