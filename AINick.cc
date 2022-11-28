@@ -26,7 +26,7 @@ struct PLAYER_NAME : public Player
    * Types and attributes for your player can be defined here.
    */
   const vector<Dir> dirs = {Up, Down, Left, Right};
-  const vector<Dir> mesdirs = {Up, Down, Left, Right, DR, RU, UL, LD};
+  const vector<Dir> mesdirs = {DR, RU, UL, LD};
   vector<int> alive;
   const int maxunitats = 15;
   const int mindistmenjar = 12;
@@ -462,6 +462,24 @@ struct PLAYER_NAME : public Player
         }
       }
     }
+    for (Dir dir : mesdirs)
+    {
+      Pos newpos = pos + dir;
+      if (pos_ok(newpos) and accesible(newpos))
+      {
+        int enemid = cell(newpos).id;
+        if (enemid != -1)
+        {
+          if (zombie(enemid))
+          {
+            cerr << id << " FUGINT ZOMBIE DIAGONAL" << endl;
+            //move(id, dir);
+            //return true;
+          }
+        }
+      }
+    }
+
     return false;
   }
 
