@@ -485,12 +485,12 @@ struct PLAYER_NAME : public Player
         cerr << "start BFS of " << id << " at pos " << unitpos.i << ',' << unitpos.j << endl;
         int i = 0;
         Dir dir = DR;
-        while (dir == DR and i < busc.size() and round() < (num_rounds() - num_rounds() / 3))
+        while (dir == DR and i < busc.size() and round() < (num_rounds() - num_rounds() / 4))
         {
           dir = dir_menjar(id, unitpos, busc[i]); // buscar direcció al menjar més proper
           ++i;
         }
-        if (round() > (num_rounds() - num_rounds() / 3))
+        if (round() > (num_rounds() - num_rounds() / 4))
           dir = dir_menjar(id, unitpos, "lastenem");
 
         if (dir != DR)
