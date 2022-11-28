@@ -74,6 +74,7 @@ struct PLAYER_NAME : public Player
     return false;
   }
 
+  //retorna true si a la posició n'hi ha un enemic o un zombie
   bool enemic(Pos p)
   {
     int unitid = cell(p).id;
@@ -85,6 +86,7 @@ struct PLAYER_NAME : public Player
     return false;
   }
 
+  //retorna true si l'enemic de la posició es més fluix que jo o si n'hi ha error
   bool ganador(Pos p)
   {
     if (not pos_ok(p))
@@ -232,6 +234,7 @@ struct PLAYER_NAME : public Player
       }
       else
       {
+        
         if (proximpas(act, Down, dist))
         {
           vector<Pos> nou_camí = camí;
