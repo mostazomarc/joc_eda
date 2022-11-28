@@ -68,7 +68,7 @@ struct PLAYER_NAME : public Player
     if (unitid == -1)
       return false;
     Unit u = unit(unitid);
-    if (u.type == Zombie)
+    if (u.player == -1)
       return true;
     return false;
   }
@@ -223,7 +223,7 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (enemic(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and ganador(unitid) and busca == "enemic")))
+      else if (enemic(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic")))
       {
         found = true;
         camifinal = camí;
