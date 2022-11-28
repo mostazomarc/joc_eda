@@ -29,9 +29,9 @@ struct PLAYER_NAME : public Player
   vector<int> alive;
   const int maxunitats = 15;
   const int mindistmenjar = 12;
-  const int mindistenemics = 5;
-  const int distcerca = 3;
-  const vector<string> busc = {"cerca", "menjar", "enemic", "conq"};
+  const int mindistenemics = 8;
+  const int distcerca = 4;
+  const vector<string> busc = {"menjar", "enemic", "conq"};
 
   // auxiliars
 
@@ -206,13 +206,13 @@ struct PLAYER_NAME : public Player
 
       // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
 
-      if (menjar(act) and ((busca == "cerca" and dist[act.i][act.j] <= distcerca) or ((dist[act.i][act.j] <= mindistmenjar or alive.size() > maxunitats) and busca == "menjar")))
+      if (menjar(act) and ((dist[act.i][act.j] <= distcerca) or ((dist[act.i][act.j] <= mindistmenjar or alive.size() > maxunitats) and busca == "menjar")))
       {
         found = true; // si es menjar food = true perque hem trobat menjar
         camifinal = camí;
         cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (zombie(act) and ((busca == "cerca" and dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic")))
+      else if (zombie(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic")))
       {
         found = true;
         camifinal = camí;
@@ -224,7 +224,7 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (enemic(act) and ((busca == "cerca" and dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and ganador(act) and busca == "enemic")))
+      else if (enemic(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and ganador(act) and busca == "enemic")))
       {
         found = true;
         camifinal = camí;
@@ -483,25 +483,25 @@ struct PLAYER_NAME : public Player
     else if (idup != -1)
     {
       Unit unitup = unit(idup);
-      if (strength(unitup.player) >= strength(jo) and unitup.player != me())
+      if (not ganador(pos+Up) and unitup.player != me())
         fugir(id, Up);
     }
     else if (iddown != -1)
     {
       Unit unitdown = unit(iddown);
-      if (strength(unitdown.player) >= strength(jo) and unitdown.player != me())
+      if (not ganador(pos+Down) and unitdown.player != me())
         fugir(id, Down);
     }
     else if (idright != -1)
     {
       Unit unitright = unit(idright);
-      if (strength(unitright.player) >= strength(jo) and unitright.player != me())
+      if (not ganador(pos+Right) and unitright.player != me())
         fugir(id, Right);
     }
     else if (idleft != -1)
     {
       Unit unitleft = unit(idleft);
-      if (strength(unitleft.player) >= strength(jo) and unitleft.player != me())
+      if (not ganador(pos+Left) and unitleft.player != me())
         fugir(id, Left);
     }
   }
@@ -638,7 +638,7 @@ struct PLAYER_NAME : public Player
       else
       {
         cerr << "conquistant..." << endl;
-        // dir = space_adj(id, unitpos); // direcció al space conquerible més proper
+        dir = space_adj(id, unitpos); // direcció al space conquerible més proper
         cerr << "unit " << id << " conquistara cap a " << dir << endl;
         move(alive[id], dir); // ens movem cap allà
       }
