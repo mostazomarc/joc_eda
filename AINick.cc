@@ -26,6 +26,7 @@ struct PLAYER_NAME : public Player
    * Types and attributes for your player can be defined here.
    */
   const vector<Dir> dirs = {Up, Down, Left, Right};
+  const vector<Dir> mesdirs = {Up, Down, Left, Right, DR, RU, UL, LD};
   vector<int> alive;
   const int maxunitats = 15;
   const int mindistmenjar = 12;
@@ -368,45 +369,21 @@ struct PLAYER_NAME : public Player
     }
   }
 
-  bool en_perill(const Pos p)
+  bool en_perill(const int id, const Pos p)
   {
     Pos pos = p;
 
-    int idup = -1;
-    int iddown = -1;
-    int idright = -1;
-    int idleft = -1;
-    int iddr = -1;
-    int idru = -1;
-    int idul = -1;
-    int idld = -1;
-
-    if (pos_ok(p + Up))
-      idup = cell(pos + Up).id;
-    if (pos_ok(p + Down))
-      iddown = cell(pos + Down).id;
-    if (pos_ok(p + Right))
-      idright = cell(pos + Right).id;
-    if (pos_ok(p + Left))
-      idleft = cell(pos + Left).id;
-    if (pos_ok(p + DR))
-      iddr = cell(pos + DR).id;
-    if (pos_ok(p + RU))
-      idru = cell(pos + RU).id;
-    if (pos_ok(p + UL))
-      idul = cell(pos + UL).id;
-    if (pos_ok(p + LD))
-      idld = cell(pos + LD).id;
-
-    if (idup == -1 or iddown == -1 or idright == -1 or idleft == -1 or iddr == -1 or idru == -1 or idul == -1 or idld == -1)
-    {
-      if (idup != me() or iddown != me() or idright != me() or idleft != me() or iddr != me() or idru != me() or idul != me() or idld != me())
-        return true;
-      else
-        return false;
+    for (int i = 0; i < mesdirs.size(); ++i) {
+      int id = -1;
+      if (pos_ok(p + mesdirs[i])) {
+        id = cell(pos + mesdirs[i]).id;
+        if (id != -1 and id != me()) {
+          lluita(id);
+          return true;
+        }
+      }
     }
-    else
-      return false;
+    return false;
   }
 
   // comprova les posicions adjacents per enemics i lluita o fuig segons les posibilitats de guanyar
@@ -603,8 +580,7 @@ struct PLAYER_NAME : public Player
     {
       Pos unitpos = unit(alive[id]).pos;
 
-      if (en_perill(unitpos))
-        lluita(id); // lluitar si fa falta
+      if (not en_perill(id,unitpos)) {
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
       int i = 0;
       Dir dir = DR;
@@ -626,6 +602,7 @@ struct PLAYER_NAME : public Player
         dir = space_adj(id, unitpos); // direcció al space conquerible més proper
         cerr << "unit " << id << " conquistara cap a " << dir << endl;
         move(alive[id], dir); // ens movem cap allà
+      }
       }
     }
   }
