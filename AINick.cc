@@ -389,6 +389,7 @@ struct PLAYER_NAME : public Player
     return DR;
   }
 
+  //fuig cap a la dirreció contraria de enem
   void fuig (int id, Dir enem) 
   {
     Pos pos = unit(alive[id]).pos;
@@ -411,6 +412,7 @@ struct PLAYER_NAME : public Player
     }
   }
 
+  //retorna true si ha hagut de fer alguna acció en base a un enemic adjacent
   bool batalla(int id)
   {
     Pos pos = unit(alive[id]).pos;
