@@ -64,7 +64,7 @@ struct PLAYER_NAME : public Player
   // retorna true si a la posició p n'hi ha un zombie
   bool zombie(int unitid)
   {
-    
+
     if (unitid == -1)
       return false;
     Unit u = unit(unitid);
@@ -203,7 +203,7 @@ struct PLAYER_NAME : public Player
       Pos act = camí[camí.size() - 1]; // agafem la ultima pos de el camí
 
       // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
-      int unitid = cell(act).id;   
+      int unitid = cell(act).id;
 
       if (menjar(act) and ((dist[act.i][act.j] <= distcerca) or ((dist[act.i][act.j] <= mindistmenjar or alive.size() > maxunitats) and busca == "menjar")))
       {
@@ -365,7 +365,7 @@ struct PLAYER_NAME : public Player
     }
   }
 
-  //retorna true si el player de la unitat no soc jo
+  // retorna true si el player de la unitat no soc jo
   bool not_me(int unitid)
   {
     Unit u = unit(unitid);
@@ -378,11 +378,14 @@ struct PLAYER_NAME : public Player
   {
     Pos pos = p;
 
-    for (int i = 0; i < mesdirs.size(); ++i) {
+    for (int i = 0; i < mesdirs.size(); ++i)
+    {
       int id = -1;
-      if (pos_ok(p + mesdirs[i])) {
+      if (pos_ok(p + mesdirs[i]))
+      {
         id = cell(pos + mesdirs[i]).id;
-        if (id != -1 and not_me(id)) {
+        if (id != -1 and not_me(id))
+        {
           lluita(id);
           return true;
         }
@@ -390,7 +393,6 @@ struct PLAYER_NAME : public Player
     }
     return false;
   }
-
 
   // comprova les posicions adjacents per enemics i lluita o fuig segons les posibilitats de guanyar
   void lluita(const int id)
@@ -412,12 +414,11 @@ struct PLAYER_NAME : public Player
           }else { //diagonals
               if (zombie(cellid)) fugir(alive[id],mesdirs[i]);
         }
-        
+
       }
     }
     }
     */
-    
 
     // get id of adjacent units
     int idup = -1;
@@ -493,7 +494,6 @@ struct PLAYER_NAME : public Player
       if (not ganador(idleft) and unitleft.player != me())
         fugir(id, Left);
     }
-    
   }
 
   // Returns Dir to the nearest avialable food
@@ -608,7 +608,7 @@ struct PLAYER_NAME : public Player
     {
       Pos unitpos = unit(alive[id]).pos;
 
-      //lluita(id);
+      // lluita(id);
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
       int i = 0;
       Dir dir = DR;
@@ -631,7 +631,6 @@ struct PLAYER_NAME : public Player
         cerr << "unit " << id << " conquistara cap a " << dir << endl;
         move(alive[id], dir); // ens movem cap allà
       }
-      
     }
   }
 };
