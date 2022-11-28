@@ -62,11 +62,9 @@ struct PLAYER_NAME : public Player
   }
 
   // retorna true si a la posició p n'hi ha un zombie
-  bool zombie(const Pos p)
+  bool zombie(int unitid)
   {
-    if (not pos_ok(p))
-      return false;
-    int unitid = cell(p).id;
+    
     if (unitid == -1)
       return false;
     Unit u = unit(unitid);
@@ -88,11 +86,8 @@ struct PLAYER_NAME : public Player
   }
 
   // retorna true si l'enemic de la posició es més fluix que jo o si n'hi ha error
-  bool ganador(Pos p)
+  bool ganador(int id)
   {
-    if (not pos_ok(p))
-      return false;
-    int id = cell(p).id;
     if (id != -1)
     {
       Unit u = unit(id);
@@ -208,6 +203,7 @@ struct PLAYER_NAME : public Player
       Pos act = camí[camí.size() - 1]; // agafem la ultima pos de el camí
 
       // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
+      int unitid = cell(act).id;   
 
       if (menjar(act) and ((dist[act.i][act.j] <= distcerca) or ((dist[act.i][act.j] <= mindistmenjar or alive.size() > maxunitats) and busca == "menjar")))
       {
@@ -215,7 +211,7 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (zombie(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic")))
+      else if (zombie(unitid) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic")))
       {
         found = true;
         camifinal = camí;
@@ -227,7 +223,7 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (enemic(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and ganador(act) and busca == "enemic")))
+      else if (enemic(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and ganador(unitid) and busca == "enemic")))
       {
         found = true;
         camifinal = camí;
@@ -278,13 +274,13 @@ struct PLAYER_NAME : public Player
 
     cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << adjacent.i << ' ' << adjacent.j << endl;
 
-    if (adjacent == (p + Down) and accesible(adjacent + Down))
+    if (adjacent == (p + Down) and accesible(adjacent))
       return Down;
-    if (adjacent == (p + Up) and accesible(adjacent + Up))
+    if (adjacent == (p + Up) and accesible(adjacent))
       return Up;
-    if (adjacent == (p + Right) and accesible(adjacent + Right))
+    if (adjacent == (p + Right) and accesible(adjacent))
       return Right;
-    if (adjacent == (p + Left) and accesible(adjacent + Left))
+    if (adjacent == (p + Left) and accesible(adjacent))
       return Left;
 
     cout << "ERROR DIRECCIÓ A POSICIÓ SEGUENT NO TROBADA" << endl;
@@ -386,11 +382,39 @@ struct PLAYER_NAME : public Player
     return false;
   }
 
+  //retorna true si el player de la unitat no soc jo
+  bool not_me(int unitid)
+  {
+    Unit u = unit(unitid);
+    if (u.player != me())
+      return true;
+    return false;
+  }
+
   // comprova les posicions adjacents per enemics i lluita o fuig segons les posibilitats de guanyar
   void lluita(const int id)
   {
     Pos pos = unit(alive[id]).pos;
     int jo = me();
+
+    for (int i = 0; i < mesdirs.size(); ++i) {
+      Pos adjacent = pos + mesdirs[i];
+      int cellid = -1;
+      if (pos_ok(adjacent)) {
+        cellid = cell(adjacent).id;
+        if (cellid != -1 and not_me(cellid)){
+          //laterals
+         if (i < 4) {
+              if (ganador(cellid) or zombie (cellid)) move(alive[id],mesdirs[i]);
+              else fugir(id,mesdirs[i]);
+          }else { //diagonals
+              if (zombie(cellid)) fugir(alive[id],mesdirs[i]);
+        }
+        
+      }
+    }
+    }
+    /*
 
     // get id of adjacent units
     int idup = -1;
@@ -466,6 +490,7 @@ struct PLAYER_NAME : public Player
       if (not ganador(pos + Left) and unitleft.player != me())
         fugir(id, Left);
     }
+    */
   }
 
   // Returns Dir to the nearest avialable food
@@ -580,7 +605,7 @@ struct PLAYER_NAME : public Player
     {
       Pos unitpos = unit(alive[id]).pos;
 
-      if (not en_perill(id,unitpos)) {
+      //if (not en_perill(id,unitpos)) {
       cerr << "start BFS of " << alive[id] << " at pos " << unitpos.i << ',' << unitpos.j << endl;
       int i = 0;
       Dir dir = DR;
@@ -603,7 +628,7 @@ struct PLAYER_NAME : public Player
         cerr << "unit " << id << " conquistara cap a " << dir << endl;
         move(alive[id], dir); // ens movem cap allà
       }
-      }
+      
     }
   }
 };
