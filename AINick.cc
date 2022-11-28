@@ -91,7 +91,7 @@ struct PLAYER_NAME : public Player
     if (id != -1)
     {
       Unit u = unit(id);
-      if (strength(u.player) < strength(me()))
+      if (strength(u.player) < strength(me()) and u.player != -1)
         return true;
       else
         return false;
