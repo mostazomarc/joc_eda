@@ -211,7 +211,7 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (zombie(unitid) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic")))
+      else if (zombie(unitid) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic") or round() > (num_rounds()-num_rounds()/4)))
       {
         found = true;
         camifinal = camí;
@@ -223,7 +223,7 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (enemic(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic")))
+      else if (enemic(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic") or round() > (num_rounds()-num_rounds()/4)))
       {
         found = true;
         camifinal = camí;
@@ -428,7 +428,7 @@ struct PLAYER_NAME : public Player
               cerr << id << " ATACANT ZOMBIE" << endl;
               move(id,dir);
               return true;
-            } else if (ganador(enemid)) {
+            } else if (ganador(enemid) or round() > (num_rounds()-num_rounds()/4)) {
               cerr << id << " ATACANT ENEMIC" << endl;
               move(id,dir);
               return true;
