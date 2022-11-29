@@ -26,7 +26,7 @@ struct PLAYER_NAME : public Player
    * Types and attributes for your player can be defined here.
    */
   const vector<Dir> dirs = {Up, Down, Left, Right};
-  const vector<Dir> mesdirs = {Up, Down, Left, Right, DR, RU, UL, LD};
+  const vector<Dir> mesdirs = {DR, RU, UL, LD};
   vector<int> alive;
   const int maxunitats = 15;
   const int mindistmenjar = 12;
@@ -427,6 +427,25 @@ struct PLAYER_NAME : public Player
       else if (accesible(pos + Down))
         move(id, Down);
     }
+    else if(enem == DR) {
+      if (pos_ok(pos + Up)) move(id, Up);
+      else if (pos_ok(pos + Left)) move(id, Left);
+    }
+    else if(enem == UL) {
+      if (pos_ok(pos + Down)) move(id,Down);
+      else if (pos_ok(pos + Right))
+        move(id, Right);
+    }
+    else if(enem == RU) {
+      if (pos_ok(pos + Down)) move(id,Down);
+      else if (pos_ok(pos + Left))
+        move(id, Left);
+    }
+    else if(enem == LD) {
+      if (pos_ok(pos + Up)) move(id,Up);
+      else if (pos_ok(pos + Right))
+        move(id, Right);
+    }
   }
 
   // retorna true si ha hagut de fer alguna acció en base a un enemic adjacent
@@ -462,6 +481,24 @@ struct PLAYER_NAME : public Player
         }
       }
     }
+    for (Dir dir : mesdirs)
+    {
+      Pos newpos = pos + dir;
+      if (pos_ok(newpos) and accesible(newpos))
+      {
+        int enemid = cell(newpos).id;
+        if (enemid != -1)
+        {
+          if (zombie(enemid))
+          {
+            cerr << id << " FUGINT ZOMBIE DIAGONAL" << endl;
+            fuig(id,dir);
+            return true;
+          }
+        }
+      }
+    }
+
     return false;
   }
 

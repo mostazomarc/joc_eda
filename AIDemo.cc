@@ -45,6 +45,13 @@ struct PLAYER_NAME : public Player {
     // Getting the alive units
     vector<int> alive = alive_units(me());
 
+    // Write debugging info about my units
+    cerr << "At round " << round() << " player " << me() << " has " << alive.size() << " alive units: ";
+    for (auto id : alive) {
+      cerr << id << " at pos " << unit(id).pos << "; ";
+    }
+    cerr << endl;
+
     if (round()% 2 == 0) {
       // Move all alive units randomly (avoiding out of bounds and waste)
       for (int id : alive) {
