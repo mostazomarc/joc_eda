@@ -466,7 +466,7 @@ struct PLAYER_NAME : public Player
             move(id, dir);
             return true;
           }
-          else if (ganador(enemid) or round() > (num_rounds() - num_rounds() / 4))
+          else if (not_me(enemid))
           {
             cerr << id << " ATACANT ENEMIC" << endl;
             move(id, dir);
