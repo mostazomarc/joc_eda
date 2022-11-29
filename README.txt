@@ -1,9 +1,4 @@
 
-title:      ThePurge
+title:      Joc EDA The Walking Dead 2022
 
-author(s):  Albert Oliveras
-
-
-contact:    oliveras@cs.upc.edu
-
-(c) Universitat Politècnica de Catalunya, 2022
+author(s):  Marc Mostazo

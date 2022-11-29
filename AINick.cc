@@ -1,5 +1,9 @@
 #include "Player.hh"
 
+//-Busca menjar 25% partida
+//matar menjar si es a prop 
+//adjacents
+
 /**
  * Write the name of your player and save this file
  * with the same name and .cc extension.
@@ -545,8 +549,3 @@ struct PLAYER_NAME : public Player
  * Do not modify the following line.
  */
 RegisterPlayer(PLAYER_NAME);
-
-
-//-Busca menjar 25% partida
-//matar menjar si es a prop 
-//adjacents
