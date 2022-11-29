@@ -375,13 +375,13 @@ struct PLAYER_NAME : public Player
     }
     cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << act.i << ' ' << act.j << endl;
 
-    if (act.i > p.i and accesible(act + Down))
+    if (act == (p+Down) and accesible(act))
       return Down;
-    if (act.i < p.i and accesible(act + Up))
+    if (act ==  (p+Up) and accesible(act))
       return Up;
-    if (act.j > p.j and accesible(act + Right))
+    if (act ==  (p+Right) and accesible(act))
       return Right;
-    if (act.j < p.j and accesible(act + Left))
+    if (act ==  (p+Left) and accesible(act))
       return Left;
 
     return DR;
