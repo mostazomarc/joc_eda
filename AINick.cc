@@ -31,7 +31,7 @@ struct PLAYER_NAME : public Player
   const int maxunitats = 15;
   const int mindistmenjar = 12;
   const int mindistenemics = 8;
-  const int distcerca = 4;
+  const int distcerca = 12;
   const vector<string> busc = {"menjar", "enemic", "conq"};
 
   // auxiliars
@@ -205,13 +205,13 @@ struct PLAYER_NAME : public Player
       // cerr << "pos act a mirar " << act.i << ',' << act.j << endl;
       int unitid = cell(act).id;
 
-      if (menjar(act) and ((dist[act.i][act.j] <= distcerca) or ((dist[act.i][act.j] <= mindistmenjar or alive.size() > maxunitats) and busca == "menjar")))
+      if (menjar(act) and ((dist[act.i][act.j] <= distcerca) or busca == "menjar"))
       {
         found = true; // si es menjar food = true perque hem trobat menjar
         camifinal = camí;
         cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (zombie(unitid) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic") or (dist[act.i][act.j] <= mindistenemics and busca == "lastenem")))
+      else if (zombie(unitid) and (busca == "enemic"))
       {
         found = true;
         camifinal = camí;
@@ -223,7 +223,7 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found espai per conquerir at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (enemic(act) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic") or (dist[act.i][act.j] <= mindistenemics and busca == "lastenem")))
+      else if (enemic(act) and ((busca == "enemic")))
       {
         found = true;
         camifinal = camí;
@@ -522,13 +522,9 @@ struct PLAYER_NAME : public Player
         cerr << "start BFS of " << id << " at pos " << unitpos.i << ',' << unitpos.j << endl;
         int i = 0;
         Dir dir = DR;
-        while (dir == DR and i < busc.size() and round() < (num_rounds() - num_rounds() / 4))
-        {
-          dir = dir_menjar(id, unitpos, busc[i]); // buscar direcció al menjar més proper
-          ++i;
-        }
-        if (round() > (num_rounds() - num_rounds() / 4))
-          dir = dir_menjar(id, unitpos, "lastenem");
+        if (round() <= num_rounds() / 4)
+          dir = dir_menjar(id, unitpos, "menjar");
+        else dir = dir_menjar(id,unitpos,"enemic");
 
         if (dir != DR)
         {
@@ -552,3 +548,8 @@ struct PLAYER_NAME : public Player
  * Do not modify the following line.
  */
 RegisterPlayer(PLAYER_NAME);
+
+
+//-Busca menjar 25% partida
+//matar menjar si es a prop 
+//adjacents
