@@ -6,9 +6,6 @@
  */
 #define PLAYER_NAME Nick
 
-/* Estrategia:
-      - Si moltes unitats -- Buscar menjar
-      - Si poques unitats -- Matar zombis i buscar menjar*/
 
 struct PLAYER_NAME : public Player
 {
