@@ -91,7 +91,7 @@ struct PLAYER_NAME : public Player
     if (id != -1)
     {
       Unit u = unit(id);
-      if (strength(u.player) < strength(me()) and u.player != -1)
+      if ( u.player != -1)
         return true;
       else
         return false;
@@ -211,7 +211,7 @@ struct PLAYER_NAME : public Player
         camifinal = camí;
         cerr << id << " found food at " << act.i << ',' << act.j << " a distancia " << dist[act.i][act.j] << endl;
       }
-      else if (zombie(unitid) and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic") or (dist[act.i][act.j] <= mindistenemics and busca == "lastenem")))
+      else if (zombie(unitid) and dist[act.i][act.j] != 2  and ((dist[act.i][act.j] <= distcerca) or (dist[act.i][act.j] <= mindistenemics and busca == "enemic") or (dist[act.i][act.j] <= mindistenemics and busca == "lastenem")))
       {
         found = true;
         camifinal = camí;
@@ -466,7 +466,7 @@ struct PLAYER_NAME : public Player
             move(id, dir);
             return true;
           }
-          else if (ganador(enemid) or round() > (num_rounds() - num_rounds() / 4))
+          else if ((ganador(enemid) or round() > (num_rounds() - num_rounds() / 4)) and not_me(enemid))
           {
             cerr << id << " ATACANT ENEMIC" << endl;
             move(id, dir);
