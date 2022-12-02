@@ -1,15 +1,13 @@
 #include "Player.hh"
 
-//-Busca menjar 25% partida
-//matar menjar si es a prop 
-//adjacents
+//-Busca menjar 25% partida i atacar adjacents
+//-- Resta: agafar menjar si es a prop i matar a full
 
 /**
  * Write the name of your player and save this file
  * with the same name and .cc extension.
  */
 #define PLAYER_NAME Nick
-
 
 struct PLAYER_NAME : public Player
 {
@@ -376,13 +374,13 @@ struct PLAYER_NAME : public Player
     }
     cerr << id << " anire de p:" << p.i << ',' << p.j << " a nou: " << act.i << ' ' << act.j << endl;
 
-    if (act == (p+Down) and accesible(act))
+    if (act == (p + Down) and accesible(act))
       return Down;
-    if (act ==  (p+Up) and accesible(act))
+    if (act == (p + Up) and accesible(act))
       return Up;
-    if (act ==  (p+Right) and accesible(act))
+    if (act == (p + Right) and accesible(act))
       return Right;
-    if (act ==  (p+Left) and accesible(act))
+    if (act == (p + Left) and accesible(act))
       return Left;
 
     return DR;
@@ -428,22 +426,31 @@ struct PLAYER_NAME : public Player
       else if (accesible(pos + Down))
         move(id, Down);
     }
-    else if(enem == DR) {
-      if (pos_ok(pos + Up)) move(id, Up);
-      else if (pos_ok(pos + Left)) move(id, Left);
-    }
-    else if(enem == UL) {
-      if (pos_ok(pos + Down)) move(id,Down);
-      else if (pos_ok(pos + Right))
-        move(id, Right);
-    }
-    else if(enem == RU) {
-      if (pos_ok(pos + Down)) move(id,Down);
+    else if (enem == DR)
+    {
+      if (pos_ok(pos + Up))
+        move(id, Up);
       else if (pos_ok(pos + Left))
         move(id, Left);
     }
-    else if(enem == LD) {
-      if (pos_ok(pos + Up)) move(id,Up);
+    else if (enem == UL)
+    {
+      if (pos_ok(pos + Down))
+        move(id, Down);
+      else if (pos_ok(pos + Right))
+        move(id, Right);
+    }
+    else if (enem == RU)
+    {
+      if (pos_ok(pos + Down))
+        move(id, Down);
+      else if (pos_ok(pos + Left))
+        move(id, Left);
+    }
+    else if (enem == LD)
+    {
+      if (pos_ok(pos + Up))
+        move(id, Up);
       else if (pos_ok(pos + Right))
         move(id, Right);
     }
@@ -473,12 +480,14 @@ struct PLAYER_NAME : public Player
             move(id, dir);
             return true;
           }
+          /*
           else if (not ganador(enemid) and not_me(enemid))
           {
             cerr << id << " FUIG!" << endl;
             fuig(id, dir);
             return true;
           }
+          */
         }
       }
     }
@@ -493,7 +502,7 @@ struct PLAYER_NAME : public Player
           if (zombie(enemid))
           {
             cerr << id << " FUGINT ZOMBIE DIAGONAL" << endl;
-            fuig(id,dir);
+            fuig(id, dir);
             return true;
           }
         }
@@ -525,7 +534,8 @@ struct PLAYER_NAME : public Player
         Dir dir = DR;
         if (round() <= num_rounds() / 4)
           dir = dir_menjar(id, unitpos, "menjar");
-        else dir = dir_menjar(id,unitpos,"enemic");
+        else
+          dir = dir_menjar(id, unitpos, "enemic");
 
         if (dir != DR)
         {
